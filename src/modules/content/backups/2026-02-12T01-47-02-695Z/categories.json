@@ -1,0 +1,68 @@
+[
+  {
+    "_id": "687c10fb038c631d02a47d02",
+    "slug": "creator-life",
+    "__v": 0,
+    "createdAt": "2025-07-19T21:41:15.493Z",
+    "description": "Actionable strategies, side hustles, and content hacks for Nigerian digital entrepreneurs.",
+    "metaDescription": "Your guide to the creator economy in Nigeria. Learn how to build side hustles and succeed online.",
+    "metaTitle": "Content Creator & Side Hustle Tips | AmeboGist",
+    "name": "✍️ Creator Life",
+    "updatedAt": "2025-07-19T21:41:15.493Z"
+  },
+  {
+    "_id": "687c10fa038c631d02a47d01",
+    "slug": "amebo-ai-tech",
+    "__v": 0,
+    "createdAt": "2025-07-19T21:41:15.301Z",
+    "description": "Secret tools for success. AI, emerging tech, and Nigerian startup news made simple.",
+    "metaDescription": "Demystifying AI and technology for everyday Nigerians. Discover tools and trends to help you level up.",
+    "metaTitle": "AI & Tech Tools for Nigerians | AmeboGist",
+    "name": "🤖 Amebo AI & Tech",
+    "updatedAt": "2025-07-19T21:41:15.301Z"
+  },
+  {
+    "_id": "680b571ef74271e234e3a3a7",
+    "name": "🏛️ Politics Naija Style",
+    "slug": "politics-naija-style",
+    "createdAt": "2025-04-25T09:34:22.986Z",
+    "updatedAt": "2025-07-19T21:41:14.917Z",
+    "__v": 0,
+    "description": "Gist on political events, government policies, and how it affects the average Nigerian.",
+    "metaDescription": "We break down complex Nigerian politics into easy-to-understand gist. Find out how policies and events affect you.",
+    "metaTitle": "Nigerian Politics Explained | AmeboGist"
+  },
+  {
+    "_id": "680b570cf74271e234e3a3a2",
+    "name": "🎭 Entertainment Vibes",
+    "slug": "entertainment-vibes",
+    "createdAt": "2025-04-25T09:34:04.888Z",
+    "updatedAt": "2025-07-19T21:41:14.679Z",
+    "__v": 0,
+    "description": "Nollywood, Afrobeats, celebrity para, and cultural impact analysis.",
+    "metaDescription": "Your source for the latest in Nigerian entertainment, from Nollywood blockbusters to Afrobeats chart-toppers.",
+    "metaTitle": "Nollywood & Afrobeats News | AmeboGist"
+  },
+  {
+    "_id": "680c90d919993302648b908a",
+    "name": "⚽ Sports Wahala",
+    "slug": "sports-wahala",
+    "createdAt": "2025-04-26T07:52:57.172Z",
+    "updatedAt": "2025-07-19T21:41:15.100Z",
+    "__v": 0,
+    "description": "Beyond the scores—Super Eagles, EPL Naija stars, fan culture, and the business of sports.",
+    "metaDescription": "All the 'wahala' from the world of Nigerian sports, focusing on the Super Eagles, local stars, and football culture.",
+    "metaTitle": "Nigerian Sports News & Gist | AmeboGist"
+  },
+  {
+    "_id": "680d897419993302648b9338",
+    "name": "🔥 Trending Gist",
+    "slug": "trending-gist",
+    "createdAt": "2025-04-27T01:33:40.962Z",
+    "updatedAt": "2025-07-19T21:41:14.521Z",
+    "__v": 0,
+    "description": "Breaking news, social media controversies, and what everyone is talking about right now.",
+    "metaDescription": "Get the latest scoop on trending gist and viral news in Nigeria. We cover the stories everyone is talking about.",
+    "metaTitle": "Trending Nigerian Gist & Viral News | AmeboGist"
+  }
+]

@@ -1,0 +1,55 @@
+[
+  {
+    "_id": "680d35aa1f1bc1a71529aaa3",
+    "name": "Anonymous",
+    "email": "anonymous@example.com",
+    "password": "$2b$10$F/Qo65aWx7AcgSSSiOItfeEXPuZG2maqzzCJdR3BjmLWF.9VWqaF.",
+    "role": "user",
+    "avatar": "/author-avatar.png",
+    "__v": 0
+  },
+  {
+    "_id": "682b2558e977ed52d9144806",
+    "name": "Ambeo Gist Bot",
+    "email": "bot@amebogist.com",
+    "password": "$2b$10$p5SrFwMQvQ.0x9itYTj3POEqz/nwRfIqqsmKhyGqx2McmD7PWHTLu",
+    "role": "admin",
+    "avatar": "/avatars/admin.png",
+    "__v": 0
+  },
+  {
+    "_id": "6861a2476bb811476865dc9a",
+    "name": "Uche",
+    "email": "charleschijuka@gmail.com",
+    "password": "$2b$10$/Gw9H.6SpZMfgrHFIEsvmusVEtB/YumX5Ly5fc08J7awrYVHDOJ0a",
+    "role": "user",
+    "__v": 0
+  },
+  {
+    "_id": "680b6a28487981a6e91f7fec",
+    "name": "Charles Uche",
+    "email": "uchecharles223@gmail.com",
+    "password": "$2b$10$1NBIzDEGSN4kgb6pNslyDuWo5wphvxCCQyc4jFczDB3dyvus18Oge",
+    "role": "user",
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIR7qhrwTGE_Vps_rjcvPWfctbLe1DbkA6mq4JSH3Ss6INYTro=s96-c",
+    "__v": 0
+  },
+  {
+    "_id": "680d35ab1f1bc1a71529aaa6",
+    "name": "Super Admin",
+    "email": "superadmin@example.com",
+    "password": "$2b$10$H88R38HzKYeA7gc.J49xKuKTihuCuuMeK7GTo/O3OOk3qA.NI5s9e",
+    "role": "superadmin",
+    "avatar": "/author-avatar.png",
+    "__v": 0
+  },
+  {
+    "_id": "680d42bd19993302648b926f",
+    "name": "wilson",
+    "email": "wilson@gmail.com",
+    "password": "$2b$10$Ntd.YNF2gj49uXXWTdVTcuakatuvlew6zpTt0L2u1Y6jkJawbVVEG",
+    "role": "admin",
+    "avatar": "/author-avatar.png",
+    "__v": 0
+  }
+]

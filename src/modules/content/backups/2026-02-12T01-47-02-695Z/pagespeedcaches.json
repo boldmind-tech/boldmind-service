@@ -1,0 +1,380 @@
+[
+  {
+    "_id": "68684bf7d55eef407198767a",
+    "date": "2025-07-04T21:47:35.888Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-04T21:47:35.889Z",
+    "updatedAt": "2025-07-04T21:47:35.889Z",
+    "__v": 0
+  },
+  {
+    "_id": "687d7a0a75e552fe63140d65",
+    "date": "2025-07-20T23:21:46.240Z",
+    "pageSpeed": 75,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-20T23:21:46.265Z",
+    "updatedAt": "2025-07-20T23:21:46.265Z",
+    "__v": 0
+  },
+  {
+    "_id": "68856deea7f388d88f6cb336",
+    "date": "2025-07-27T00:08:14.752Z",
+    "pageSpeed": 90,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-27T00:08:14.765Z",
+    "updatedAt": "2025-07-27T00:08:14.765Z",
+    "__v": 0
+  },
+  {
+    "_id": "688f9b53911f4a31c1cdfc17",
+    "date": "2025-08-03T17:24:35.865Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-08-03T17:24:35.866Z",
+    "updatedAt": "2025-08-03T17:24:35.866Z",
+    "__v": 0
+  },
+  {
+    "_id": "6866f6717440c0c4a608f563",
+    "date": "2025-07-03T21:30:25.385Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-03T21:30:25.387Z",
+    "updatedAt": "2025-07-03T21:30:25.387Z",
+    "__v": 0
+  },
+  {
+    "_id": "6866f68a7440c0c4a608f567",
+    "date": "2025-07-03T21:30:50.022Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-03T21:30:50.023Z",
+    "updatedAt": "2025-07-03T21:30:50.023Z",
+    "__v": 0
+  },
+  {
+    "_id": "686b7b1521d2fa784bf74ef3",
+    "date": "2025-07-07T07:45:25.978Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-07T07:45:25.984Z",
+    "updatedAt": "2025-07-07T07:45:25.984Z",
+    "__v": 0
+  },
+  {
+    "_id": "686da58fa922fa70944c050a",
+    "date": "2025-07-08T23:11:11.074Z",
+    "pageSpeed": 98,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-08T23:11:11.076Z",
+    "updatedAt": "2025-07-08T23:11:11.076Z",
+    "__v": 0
+  },
+  {
+    "_id": "686da58fa922fa70944c050c",
+    "date": "2025-07-08T23:11:11.154Z",
+    "pageSpeed": 98,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-08T23:11:11.154Z",
+    "updatedAt": "2025-07-08T23:11:11.154Z",
+    "__v": 0
+  },
+  {
+    "_id": "6870e4cfb4cbd1781c0ef2de",
+    "date": "2025-07-11T10:17:51.467Z",
+    "pageSpeed": 71,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-11T10:17:51.469Z",
+    "updatedAt": "2025-07-11T10:17:51.469Z",
+    "__v": 0
+  },
+  {
+    "_id": "6873e48b85af65ded6750e03",
+    "date": "2025-07-13T16:53:31.493Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-13T16:53:31.495Z",
+    "updatedAt": "2025-07-13T16:53:31.495Z",
+    "__v": 0
+  },
+  {
+    "_id": "6876b41cf86d0de79f0c4701",
+    "date": "2025-07-15T20:03:40.119Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-15T20:03:40.120Z",
+    "updatedAt": "2025-07-15T20:03:40.120Z",
+    "__v": 0
+  },
+  {
+    "_id": "687be26292d8363aaf54efb7",
+    "date": "2025-07-19T18:22:26.780Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-19T18:22:26.782Z",
+    "updatedAt": "2025-07-19T18:22:26.782Z",
+    "__v": 0
+  },
+  {
+    "_id": "687d7a0c75e552fe63140d75",
+    "date": "2025-07-20T23:21:48.201Z",
+    "pageSpeed": 83,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-20T23:21:48.203Z",
+    "updatedAt": "2025-07-20T23:21:48.203Z",
+    "__v": 0
+  },
+  {
+    "_id": "68856deea7f388d88f6cb338",
+    "date": "2025-07-27T00:08:14.900Z",
+    "pageSpeed": 90,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-27T00:08:14.901Z",
+    "updatedAt": "2025-07-27T00:08:14.901Z",
+    "__v": 0
+  },
+  {
+    "_id": "68856defa7f388d88f6cb33a",
+    "date": "2025-07-27T00:08:15.506Z",
+    "pageSpeed": 90,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-27T00:08:15.507Z",
+    "updatedAt": "2025-07-27T00:08:15.507Z",
+    "__v": 0
+  },
+  {
+    "_id": "68856dfea7f388d88f6cb33c",
+    "date": "2025-07-27T00:08:30.262Z",
+    "pageSpeed": 100,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-27T00:08:30.263Z",
+    "updatedAt": "2025-07-27T00:08:30.263Z",
+    "__v": 0
+  },
+  {
+    "_id": "68684be6d55eef4071987676",
+    "date": "2025-07-04T21:47:18.095Z",
+    "pageSpeed": 98,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-04T21:47:18.109Z",
+    "updatedAt": "2025-07-04T21:47:18.109Z",
+    "__v": 0
+  },
+  {
+    "_id": "6869b1cba83f28a34b5009f3",
+    "date": "2025-07-05T23:14:19.222Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-05T23:14:19.224Z",
+    "updatedAt": "2025-07-05T23:14:19.224Z",
+    "__v": 0
+  },
+  {
+    "_id": "6870e4bcd1ff42f7db1be478",
+    "date": "2025-07-11T10:17:32.875Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-11T10:17:32.878Z",
+    "updatedAt": "2025-07-11T10:17:32.878Z",
+    "__v": 0
+  },
+  {
+    "_id": "687269fcd31d929a5f286dbe",
+    "date": "2025-07-12T13:58:20.277Z",
+    "pageSpeed": 92,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-12T13:58:20.279Z",
+    "updatedAt": "2025-07-12T13:58:20.279Z",
+    "__v": 0
+  },
+  {
+    "_id": "687269fcd31d929a5f286dc0",
+    "date": "2025-07-12T13:58:20.416Z",
+    "pageSpeed": 92,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-12T13:58:20.417Z",
+    "updatedAt": "2025-07-12T13:58:20.417Z",
+    "__v": 0
+  },
+  {
+    "_id": "6878163583b155165afd200e",
+    "date": "2025-07-16T21:14:29.351Z",
+    "pageSpeed": 56,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-16T21:14:29.352Z",
+    "updatedAt": "2025-07-16T21:14:29.352Z",
+    "__v": 0
+  },
+  {
+    "_id": "687be26c92d8363aaf54efd2",
+    "date": "2025-07-19T18:22:36.338Z",
+    "pageSpeed": 100,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-19T18:22:36.339Z",
+    "updatedAt": "2025-07-19T18:22:36.339Z",
+    "__v": 0
+  },
+  {
+    "_id": "688bb42ec42a574ab886d010",
+    "date": "2025-07-31T18:21:34.732Z",
+    "pageSpeed": 91,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-31T18:21:34.746Z",
+    "updatedAt": "2025-07-31T18:21:34.746Z",
+    "__v": 0
+  },
+  {
+    "_id": "688f9b53911f4a31c1cdfc15",
+    "date": "2025-08-03T17:24:35.566Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-08-03T17:24:35.567Z",
+    "updatedAt": "2025-08-03T17:24:35.567Z",
+    "__v": 0
+  },
+  {
+    "_id": "688f9b54911f4a31c1cdfc19",
+    "date": "2025-08-03T17:24:36.419Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-08-03T17:24:36.420Z",
+    "updatedAt": "2025-08-03T17:24:36.420Z",
+    "__v": 0
+  },
+  {
+    "_id": "6866f6717440c0c4a608f565",
+    "date": "2025-07-03T21:30:25.396Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-03T21:30:25.396Z",
+    "updatedAt": "2025-07-03T21:30:25.396Z",
+    "__v": 0
+  },
+  {
+    "_id": "68684bf6d55eef4071987678",
+    "date": "2025-07-04T21:47:34.387Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-04T21:47:34.390Z",
+    "updatedAt": "2025-07-04T21:47:34.390Z",
+    "__v": 0
+  },
+  {
+    "_id": "6869b1b913b7cefb1c77daec",
+    "date": "2025-07-05T23:14:01.977Z",
+    "pageSpeed": 99,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-05T23:14:01.979Z",
+    "updatedAt": "2025-07-05T23:14:01.979Z",
+    "__v": 0
+  },
+  {
+    "_id": "686b7b1621d2fa784bf74ef5",
+    "date": "2025-07-07T07:45:26.014Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-07T07:45:26.016Z",
+    "updatedAt": "2025-07-07T07:45:26.016Z",
+    "__v": 0
+  },
+  {
+    "_id": "686f18a4557d5c774dd0d09b",
+    "date": "2025-07-10T01:34:28.208Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-10T01:34:28.210Z",
+    "updatedAt": "2025-07-10T01:34:28.210Z",
+    "__v": 0
+  },
+  {
+    "_id": "686f18a4557d5c774dd0d09d",
+    "date": "2025-07-10T01:34:28.338Z",
+    "pageSpeed": 94,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-10T01:34:28.338Z",
+    "updatedAt": "2025-07-10T01:34:28.338Z",
+    "__v": 0
+  },
+  {
+    "_id": "6870e4c9d1ff42f7db1be47a",
+    "date": "2025-07-11T10:17:45.300Z",
+    "pageSpeed": 97,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-11T10:17:45.301Z",
+    "updatedAt": "2025-07-11T10:17:45.301Z",
+    "__v": 0
+  },
+  {
+    "_id": "6878160683b155165afd200b",
+    "date": "2025-07-16T21:13:42.882Z",
+    "pageSpeed": 95,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-16T21:13:42.887Z",
+    "updatedAt": "2025-07-16T21:13:42.887Z",
+    "__v": 0
+  },
+  {
+    "_id": "687d7a0a75e552fe63140d68",
+    "date": "2025-07-20T23:21:46.495Z",
+    "pageSpeed": 75,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-20T23:21:46.496Z",
+    "updatedAt": "2025-07-20T23:21:46.496Z",
+    "__v": 0
+  },
+  {
+    "_id": "687d7a0c75e552fe63140d78",
+    "date": "2025-07-20T23:21:48.381Z",
+    "pageSpeed": 83,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-20T23:21:48.382Z",
+    "updatedAt": "2025-07-20T23:21:48.382Z",
+    "__v": 0
+  },
+  {
+    "_id": "688bb47dc42a574ab886d02f",
+    "date": "2025-07-31T18:22:53.346Z",
+    "pageSpeed": 53,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-07-31T18:22:53.348Z",
+    "updatedAt": "2025-07-31T18:22:53.348Z",
+    "__v": 0
+  },
+  {
+    "_id": "688f9b53911f4a31c1cdfc13",
+    "date": "2025-08-03T17:24:35.283Z",
+    "pageSpeed": 93,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-08-03T17:24:35.288Z",
+    "updatedAt": "2025-08-03T17:24:35.288Z",
+    "__v": 0
+  },
+  {
+    "_id": "68b66db4309b61fbeddf3217",
+    "date": "2025-09-02T04:08:20.502Z",
+    "pageSpeed": 81,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-09-02T04:08:20.509Z",
+    "updatedAt": "2025-09-02T04:08:20.509Z",
+    "__v": 0
+  },
+  {
+    "_id": "68b7d46153af5a130d4172bf",
+    "date": "2025-09-03T05:38:41.271Z",
+    "pageSpeed": 83,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-09-03T05:38:41.278Z",
+    "updatedAt": "2025-09-03T05:38:41.278Z",
+    "__v": 0
+  },
+  {
+    "_id": "68cc854579d853654e365353",
+    "date": "2025-09-18T22:18:45.870Z",
+    "pageSpeed": 79,
+    "url": "https://amebogist.ng",
+    "createdAt": "2025-09-18T22:18:45.872Z",
+    "updatedAt": "2025-09-18T22:18:45.872Z",
+    "__v": 0
+  }
+]

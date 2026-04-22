@@ -1,0 +1,168 @@
+[
+  {
+    "_id": "680d885b19993302648b92c7",
+    "content": "congratulation",
+    "postId": "680c012b19993302648b8f53",
+    "userId": "680d42bd19993302648b926f",
+    "createdAt": "2025-04-27T01:28:59.548Z",
+    "updatedAt": "2025-07-02T18:41:42.017Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "680d887b19993302648b92d8",
+    "content": "wow",
+    "postId": "680b768dce6aa99a1887c0bc",
+    "userId": "680d35aa1f1bc1a71529aaa3",
+    "createdAt": "2025-04-27T01:29:31.174Z",
+    "updatedAt": "2025-07-02T18:41:46.764Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "680da55819993302648b93b9",
+    "content": "hello",
+    "postId": "680c03f719993302648b8f84",
+    "userId": "680d42bd19993302648b926f",
+    "createdAt": "2025-04-27T03:32:40.350Z",
+    "updatedAt": "2025-07-02T18:41:52.619Z",
+    "__v": 0,
+    "status": "rejected"
+  },
+  {
+    "_id": "680dbe88354405a5526982f8",
+    "content": "and they dont play politcs with it",
+    "postId": "680dab0651814f964ebdf6e7",
+    "userId": "680b6a28487981a6e91f7fec",
+    "parentId": "680dbe37354405a5526982d2",
+    "likes": [
+      "680d35ab1f1bc1a71529aaa6"
+    ],
+    "dislikes": [],
+    "createdAt": "2025-04-27T05:20:08.537Z",
+    "updatedAt": "2025-07-02T18:42:11.168Z",
+    "__v": 1,
+    "status": "rejected"
+  },
+  {
+    "_id": "68629e6267daf23cb83ffb47",
+    "content": "RIP",
+    "postId": "6860a0042832150f0a665f6f",
+    "userId": "680d35aa1f1bc1a71529aaa3",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-06-30T14:25:38.162Z",
+    "updatedAt": "2025-07-02T18:42:33.651Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "6810a75309046a2cf0788b4b",
+    "content": "how",
+    "postId": "680dab0651814f964ebdf6e7",
+    "userId": "680d35aa1f1bc1a71529aaa3",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-04-29T10:17:55.757Z",
+    "updatedAt": "2025-07-02T18:42:17.974Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "6861a2a26bb811476865dca6",
+    "content": "What is the benefit of this law to the poor masses",
+    "postId": "6860abac2832150f0a66620f",
+    "userId": "6861a2476bb811476865dc9a",
+    "parentId": null,
+    "likes": [
+      "6861a2476bb811476865dc9a"
+    ],
+    "dislikes": [],
+    "createdAt": "2025-06-29T20:31:30.375Z",
+    "updatedAt": "2025-07-02T18:42:27.918Z",
+    "__v": 1,
+    "status": "approved"
+  },
+  {
+    "_id": "686473dc5e542766e964c7b0",
+    "content": "I pray the price of things will drop too",
+    "postId": "686465f3d7bc42b802556ec7",
+    "userId": "680b6a28487981a6e91f7fec",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-07-01T23:48:44.174Z",
+    "updatedAt": "2025-07-02T18:42:36.259Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "680dbe37354405a5526982d2",
+    "content": "i hope the war stop soon ",
+    "postId": "680dab0651814f964ebdf6e7",
+    "userId": "680d35ab1f1bc1a71529aaa6",
+    "parentId": null,
+    "likes": [
+      "680b6a28487981a6e91f7fec"
+    ],
+    "dislikes": [],
+    "createdAt": "2025-04-27T05:18:47.167Z",
+    "updatedAt": "2025-07-02T18:42:05.847Z",
+    "__v": 1,
+    "status": "approved"
+  },
+  {
+    "_id": "68651a568b1b0a72f762ae11",
+    "content": "Star boy ",
+    "postId": "6864dcfd43ca8650b41111a5",
+    "userId": "680d35aa1f1bc1a71529aaa3",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-07-02T11:39:02.877Z",
+    "updatedAt": "2025-07-02T18:43:14.322Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "6861baad72ef67a1f42efe0f",
+    "content": "Rap battle is all we need ",
+    "postId": "6860a2a92832150f0a665ffe",
+    "userId": "6861a2476bb811476865dc9a",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-06-29T22:14:05.755Z",
+    "updatedAt": "2025-07-02T18:42:31.587Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "68652ca9d5a68742b9e50a81",
+    "content": "Gaint of Africa",
+    "postId": "6864deab05f6d62ef48caa89",
+    "userId": "680d35aa1f1bc1a71529aaa3",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-07-02T12:57:13.589Z",
+    "updatedAt": "2025-07-02T18:43:17.649Z",
+    "__v": 0,
+    "status": "approved"
+  },
+  {
+    "_id": "68655675d5a68742b9e50d94",
+    "content": "God Bless Nigeria Army",
+    "postId": "686441e897107f35d8db1b82",
+    "userId": "680b6a28487981a6e91f7fec",
+    "parentId": null,
+    "likes": [],
+    "dislikes": [],
+    "createdAt": "2025-07-02T15:55:33.180Z",
+    "updatedAt": "2025-07-02T18:43:39.764Z",
+    "__v": 0,
+    "status": "approved"
+  }
+]

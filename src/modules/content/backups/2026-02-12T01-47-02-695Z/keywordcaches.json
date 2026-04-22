@@ -1,0 +1,128 @@
+[
+  {
+    "_id": "687052d8caeeece09aee74cb",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-10T23:55:04.195Z",
+    "date": "2025-07-10T23:55:04.194Z",
+    "keywords": [],
+    "updatedAt": "2025-07-10T23:55:04.195Z"
+  },
+  {
+    "_id": "687398f9d5f78a5f516ab8ee",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-13T11:31:05.757Z",
+    "date": "2025-07-13T11:31:05.757Z",
+    "keywords": [],
+    "updatedAt": "2025-07-13T11:31:05.757Z"
+  },
+  {
+    "_id": "686e7af3caeeece09aee6f39",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-09T14:21:39.681Z",
+    "date": "2025-07-09T14:21:39.680Z",
+    "keywords": [],
+    "updatedAt": "2025-07-09T14:21:39.681Z"
+  },
+  {
+    "_id": "68682f54c0a29ccf4b4a5ac1",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-04T19:45:24.357Z",
+    "date": "2025-07-04T19:45:24.353Z",
+    "keywords": [],
+    "updatedAt": "2025-07-04T19:45:24.357Z"
+  },
+  {
+    "_id": "68718f4ed5f78a5f516ab59a",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-11T22:25:18.151Z",
+    "date": "2025-07-11T22:25:18.150Z",
+    "keywords": [],
+    "updatedAt": "2025-07-11T22:25:18.151Z"
+  },
+  {
+    "_id": "6869b568c0a29ccf4b4a5d33",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-05T23:29:43.729Z",
+    "date": "2025-07-05T23:29:43.727Z",
+    "keywords": [],
+    "updatedAt": "2025-07-05T23:29:43.729Z"
+  },
+  {
+    "_id": "68726a3fd5f78a5f516ab744",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-12T13:59:27.263Z",
+    "date": "2025-07-12T13:59:27.262Z",
+    "keywords": [],
+    "updatedAt": "2025-07-12T13:59:27.263Z"
+  },
+  {
+    "_id": "68742102d5f78a5f516abb39",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-13T21:11:30.009Z",
+    "date": "2025-07-13T21:11:30.008Z",
+    "keywords": [],
+    "updatedAt": "2025-07-13T21:11:30.009Z"
+  },
+  {
+    "_id": "68793654d5f78a5f516ac2d2",
+    "__v": 0,
+    "categories": [
+      "entertainment",
+      "politics",
+      "sports",
+      "trending"
+    ],
+    "createdAt": "2025-07-17T17:43:48.187Z",
+    "date": "2025-07-17T17:43:48.184Z",
+    "keywords": [],
+    "updatedAt": "2025-07-17T17:43:48.187Z"
+  }
+]

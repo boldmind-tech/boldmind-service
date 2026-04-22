@@ -1,0 +1,10 @@
+{
+  "name": "@boldmind/afrocopy-ai-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js"
+  }
+}
