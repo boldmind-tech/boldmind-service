@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RedisService } from '../../database/redis.service';
-import { BOLDMIND_PRODUCTS } from '@boldmind/utils';
+import { BOLDMIND_PRODUCTS } from '@boldmind-tech/utils';
 
 @Injectable()
 export class HubService {

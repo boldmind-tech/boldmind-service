@@ -5,11 +5,8 @@ package-lock.json
 yarn.lock
 
 # Build outputs
-.next/
-apps/**/dist/
-out/
+dist/
 build/
-*.tsbuildinfo
 
 # Environment variables
 .env

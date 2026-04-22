@@ -30,7 +30,7 @@ import {
   SYSTEM_ROLE_PERMISSIONS,
   ECOSYSTEM_ROLE_PERMISSIONS,
   getRolePermissions,
-} from '@boldmind/utils';
+} from '@boldmind-tech/utils';
 import { Resend } from 'resend';
 
 const SALT_ROUNDS = 12;
