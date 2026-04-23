@@ -4,6 +4,13 @@ RUN npm install -g pnpm@8.15.0
 
 WORKDIR /
 
+# 👇 accept token from build args
+ARG NODE_AUTH_TOKEN
+
+# 👇 configure npm auth
+RUN echo "@boldmind-tech:registry=https://npm.pkg.github.com" >> .npmrc \
+ && echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+
 COPY /package.json ./
 
 
@@ -21,7 +28,7 @@ RUN pnpm exec nest build
 # ---- Production stage ----
 FROM node:22-alpine
 
-WORKDIR /service
+WORKDIR /
 
 COPY --from=builder  dist ./dist
 COPY --from=builder /package.json ./package.json
