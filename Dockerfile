@@ -36,6 +36,6 @@ COPY --from=builder /prisma ./prisma
 COPY --from=builder /node_modules ./node_modules
 
 
-RUN EXPOSE 4001
+EXPOSE 4001
 
 CMD ["node", "dist/main"]
