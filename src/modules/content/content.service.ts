@@ -200,7 +200,7 @@ export class ContentService {
       .sort({ 'engagement.views': -1, 'engagement.likes': -1 })
       .limit(limit)
       .lean<IPost[]>();
-
+        console.log(`Caching trending articles with key fo seconds`, articles);
     await this.redis.setex(cacheKey, TRENDING_CACHE_TTL, JSON.stringify(articles));
     return articles;
   }
@@ -364,6 +364,9 @@ export class ContentService {
    * breaking the deep inference chain entirely.
    */
   async getComments(postId: string, page: number, limit: number): Promise<PaginatedComments> {
+    if (!Types.ObjectId.isValid(postId)) {
+      throw new BadRequestException('Invalid article ID');
+    }
     const postObjectId = new Types.ObjectId(postId);
     const skip = (page - 1) * limit;
 
@@ -406,6 +409,9 @@ export class ContentService {
     dto: CreateCommentDto,
     user: { id: string; profile: { displayName: string; avatarUrl?: string } },
   ) {
+    if (!Types.ObjectId.isValid(postId)) {
+      throw new BadRequestException('Invalid article ID');
+    }
     const article = await this.postModel.findById(postId).select('_id author.id').lean<IPost>();
     if (!article) throw new NotFoundException('Article not found');
 

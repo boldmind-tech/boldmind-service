@@ -18,8 +18,8 @@ importers:
         specifier: ^3.1007.0
         version: 3.1034.0
       '@boldmind-tech/utils':
-        specifier: 1.0.0
-        version: 1.0.0(react@19.2.5)
+        specifier: 2.0.0
+        version: 2.0.0(react@19.2.5)
       '@google/generative-ai':
         specifier: ^0.21.0
         version: 0.21.0
@@ -440,8 +440,8 @@ packages:
     resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
     engines: {node: '>=6.9.0'}
 
-  '@boldmind-tech/utils@1.0.0':
-    resolution: {integrity: sha512-WshOKXZFs9b1YeIMrVaFAtJ6hJISRtiSbJAth4NxadT4ciTTfTXKSz7OPyEO4r1g0zmTDnYuWKgzpRubh89z4Q==, tarball: https://npm.pkg.github.com/download/@boldmind-tech/utils/1.0.0/d1ef52e7e511fa065e8bd4fbafccb1843439ef48}
+  '@boldmind-tech/utils@2.0.0':
+    resolution: {integrity: sha512-1q6awug06pZ4fTl6HgglBjHxbgclmrD4YFfSEXNHxnebwq39dKGq1KXJqNqopE7GloMSiPa5ezQt6k8job2TxQ==, tarball: https://npm.pkg.github.com/download/@boldmind-tech/utils/2.0.0/5f92647099db8cfab3758149db2b1163490cd21c}
     peerDependencies:
       react: '>=18'
 
@@ -4189,7 +4189,7 @@ snapshots:
 
   '@babel/runtime@7.29.2': {}
 
-  '@boldmind-tech/utils@1.0.0(react@19.2.5)':
+  '@boldmind-tech/utils@2.0.0(react@19.2.5)':
     dependencies:
       date-fns: 3.6.0
       date-fns-tz: 3.2.0(date-fns@3.6.0)
