@@ -1,14 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/providers/gemini.provider.ts
-//
-// Google Gemini — FREE tier: 15 RPM, 1M tokens/day (Flash), 2 RPM (Pro)
-// Models: gemini-2.0-flash (free, fast), gemini-1.5-pro (free, 1M ctx)
-//         gemini-1.5-flash-8b (free, fastest)
-//
-// → PRIMARY for: AmeboGist (Nigerian language quality), long-context tasks,
-//                trend analysis (has built-in Google Search grounding)
-//   Reason: Best non-English language support (Yoruba/Igbo/Hausa), free 1M ctx
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

@@ -2,7 +2,9 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { BullModule as BullMQModule } from '@nestjs/bullmq';
-import { HttpModule } from '@nestjs/axios'; // required for HttpService in MetaWebhookService
+import { HttpModule } from '@nestjs/axios';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 
 import { PlanAIController } from './planai.controller';
 import { PlanAIService } from './planai.service';
@@ -45,20 +47,42 @@ import { MarketingService } from './marketing/marketing.service';
 import { StorefrontsController } from './storefronts/storefronts.controller';
 import { StorefrontsService } from './storefronts/storefronts.service';
 
+// Email Scraper
+import { EmailScraperController } from './emailscraper/emailscraper.controller';
+import { EmailScraperService } from './emailscraper/emailscraper.service';
+import { EmailLeadSchema, ScrapeJobSchema, LeadListSchema } from './emailscraper/emailscraper.schema';
+
+// ViralKit
+import { ViralKitController } from './viralkit/viralkit.controller';
+import { ViralKitService } from './viralkit/viralkit.service';
+import { FalProvider } from './viralkit/fal.provider';
+
+// Fitness
+import { FitnessController } from './fitness/fitness.controller';
+import { FitnessService } from './fitness/fitness.service';
+
 @Module({
   imports: [
-    // Register queues used by PlanAI (uses @nestjs/bull)
+    ConfigModule,
+    HttpModule,
+
+    // Bull queues (@nestjs/bull)
     BullModule.registerQueue(
       { name: 'planai-jobs' },
     ),
 
-    // Register queues used by MetaWebhookService (uses @nestjs/bullmq)
+    // BullMQ queues (@nestjs/bullmq)
     BullMQModule.registerQueue(
       { name: 'receptionist' },
+      { name: 'emailscraper' },
     ),
 
-    // Required for HttpService used in MetaWebhookService
-    HttpModule,
+    // Mongoose schemas for EmailScraper
+    MongooseModule.forFeature([
+      { name: 'EmailLead', schema: EmailLeadSchema },
+      { name: 'ScrapeJob', schema: ScrapeJobSchema },
+      { name: 'LeadList', schema: LeadListSchema },
+    ]),
   ],
   controllers: [
     PlanAIController,
@@ -71,6 +95,9 @@ import { StorefrontsService } from './storefronts/storefronts.service';
     InvestorController,
     MarketingController,
     StorefrontsController,
+    EmailScraperController,
+    ViralKitController,
+    FitnessController,
   ],
   providers: [
     PlanAIService,
@@ -85,6 +112,10 @@ import { StorefrontsService } from './storefronts/storefronts.service';
     InvestorService,
     MarketingService,
     StorefrontsService,
+    EmailScraperService,
+    ViralKitService,
+    FalProvider,
+    FitnessService,
   ],
   exports: [PlanAIService, MetaWebhookService],
 })

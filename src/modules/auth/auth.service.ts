@@ -130,7 +130,7 @@ export class AuthService {
       data: { userId: user.id, action: 'register', ipAddress, metadata: { role } },
     });
  
-    return this.issueTokenPair(user.id, user.email, user.role, user.ecosystemRole ?? undefined, permissions);
+    return this.issueTokenPair(user.id, user.email, user.role as unknown as UserRole, user.ecosystemRole as EcosystemRole | undefined, permissions);
   }
  
   // ──────────────────────────────────────────
@@ -183,12 +183,12 @@ export class AuthService {
     });
  
     return this.issueTokenPair(
-      user.id, user.email, user.role as UserRole,
+      user.id, user.email, user.role as unknown as UserRole,
       user.ecosystemRole as EcosystemRole | undefined,
       user.permissions,
     );
   }
- 
+
   // ──────────────────────────────────────────
   // OAUTH (Google, GitHub, Twitter, Facebook)
   // ──────────────────────────────────────────
@@ -246,12 +246,12 @@ export class AuthService {
     });
  
     return this.issueTokenPair(
-      user.id, user.email, user.role as UserRole,
+      user.id, user.email, user.role as unknown as UserRole,
       user.ecosystemRole as EcosystemRole | undefined,
       user.permissions,
     );
   }
- 
+
   // ──────────────────────────────────────────
   // REFRESH TOKEN
   // ──────────────────────────────────────────
@@ -286,7 +286,7 @@ export class AuthService {
     }
  
     return this.issueTokenPair(
-      user.id, user.email, user.role as UserRole,
+      user.id, user.email, user.role as unknown as UserRole,
       user.ecosystemRole as EcosystemRole | undefined,
       user.permissions,
       stored.family,

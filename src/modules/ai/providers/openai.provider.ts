@@ -1,14 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/providers/openai.provider.ts
-//
-// OpenAI — wraps existing @boldmind/ai client
-// Models: gpt-4o (best), gpt-4o-mini (cheap), gpt-3.5-turbo (legacy)
-//         text-embedding-3-small (cheapest embeddings)
-//
-// → RESERVED for: Business plans (GPT-4o), branding (DALL-E 3 if fal.ai down),
-//                  audio transcription (Whisper)
-//   Reason: Costs money — only use when Groq/Gemini can't handle the task
-// ═══════════════════════════════════════════════════════════════════════════════
+
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

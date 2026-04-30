@@ -9,12 +9,12 @@ import {
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 
-export type MediaFolder = 'avatars' | 'articles' | 'products' | 'storefronts' | 'content' | 'misc';
+export type MediaFolder = 'avatars' | 'articles' | 'products' | 'storefronts' | 'amebogist' | 'misc' | 'viralkit';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_DOC_TYPES = ['application/pdf'];

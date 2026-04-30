@@ -30,8 +30,6 @@ export class SocialFactoryProcessor extends WorkerHost {
 
         this.logger.log(`Generating social content for post ${sourceId} → ${targetPlatforms.join(', ')}`);
 
-        // NOTE: In production, inject VideoFactoryService here and call generateSocialContentPackage()
-        // For now, log and mark as done
         await job.updateProgress(50);
 
         // Simulate processing

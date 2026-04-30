@@ -1,4 +1,3 @@
-// src/modules/planai/analytics/analytics.service.ts
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';

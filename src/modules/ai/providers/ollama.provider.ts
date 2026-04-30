@@ -1,20 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/providers/ollama.provider.ts
-//
-// Ollama — LOCAL inference, ZERO COST, no API key needed
-// Run locally: `ollama pull llama3.2` then `ollama serve`
-//
-// Recommended models for BoldMind dev:
-//   • llama3.2:3b      — Fast, 2GB RAM, good for receptionist
-//   • llama3.2:latest  — 4GB RAM, best balance
-//   • phi3.5:mini      — Microsoft Phi-3.5, 2GB, great at coding tasks
-//   • gemma2:9b        — Google Gemma 2, 5GB, excellent reasoning
-//   • mistral:7b       — Good instruction following
-//   • qwen2.5:7b       — Best for code + JSON output
-//
-// → FOR: Local development only (NODE_ENV=development)
-//         Runs on dev machine, no internet required, no costs
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

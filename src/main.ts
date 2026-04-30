@@ -43,13 +43,10 @@ async function bootstrap() {
         'https://boldmind.ng',
         'https://planai.boldmind.ng',
         'https://os.boldmind.ng',
-        'https://tools.boldmind.ng',
-        'https://fit.boldmind.ng',
-        'https://concept.boldmind.ng',
         'https://amebogist.ng',
-        'https://studio.amebogist.ng',
         'https://educenter.com.ng',
         'https://skills.educenter.com.ng',
+        'https://villagecircle.ng',
         ...FRONTEND_ORIGINS.filter(Boolean),
       ]
       : true,
@@ -110,6 +107,14 @@ async function bootstrap() {
       .addTag('OS', 'BoldMind OS')
       .addTag('Storefronts', 'Digital Storefronts')
       .addTag('Admin', 'Admin dashboard')
+      .addTag('Vibe Coders', 'Vibe Coders cohort — applications, assessments, payments')
+      .addTag('VillageCircle / ReceiptGenius', 'Receipt & invoice generation')
+      .addTag('VillageCircle / KoloAI', 'Nigerian language translation')
+      .addTag('VillageCircle / NaijaGig', 'Artisan gig marketplace')
+      .addTag('VillageCircle / Skill2Cash', 'Artisan video profiles')
+      .addTag('VillageCircle / FarmgateDirect', 'Farm produce marketplace')
+      .addTag('VillageCircle / AfroHustle', 'Business blueprints for Nigerian entrepreneurs')
+      .addTag('VillageCircle / Coming Soon', 'Waiting list — services in development')
       .addTag('Health', 'Railway healthcheck')
       .build();
 

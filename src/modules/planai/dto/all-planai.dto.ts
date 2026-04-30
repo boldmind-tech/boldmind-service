@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// service/src/modules/planai/dto/all-planai.dto.ts
-// DTOs for business-planning, financial, branding sub-modules
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsInt, Min, Max, IsPositive } from 'class-validator';
 

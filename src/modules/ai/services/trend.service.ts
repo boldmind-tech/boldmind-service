@@ -1,15 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/services/trend.service.ts
-//
-// TrendService — FREE implementation using:
-//   1. Gemini 2.0 Flash Google Search grounding (real-time web, FREE)
-//   2. RSS feeds from major Nigerian tech/news sources (completely free)
-//   3. Twitter/X Trending (via Nitter RSS mirrors, free)
-//   4. Google Trends RSS (free, official)
-//
-// Replaces the stub in: service/src/modules/content/src/services/trend.service.ts
-// Now internal to NestJS — no external microservice needed
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable, Logger } from '@nestjs/common';
 import { GeminiProvider } from '../providers/gemini.provider';
@@ -22,7 +10,7 @@ export interface TrendAlert {
     description?: string;
     category?: 'tech' | 'business' | 'startup' | 'ai' | 'crypto' | 'policy';
     publishedAt?: string;
-    relevanceScore?: number; // 0-100, how relevant to BoldMind audience
+    relevanceScore?: number; 
     source?: string;
 }
 

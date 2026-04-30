@@ -27,7 +27,7 @@ export class PlanAIProcessor {
         data: { status: 'COMPLETED', processingMs },
       });
       this.logger.log(`PlanAI job ${jobId} completed in ${processingMs}ms`);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`PlanAI job ${jobId} failed:`, err.message);
       await this.prisma.planAIJob.update({
         where: { id: jobId },

@@ -1,19 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/providers/cloudflare.provider.ts
-//
-// Cloudflare Workers AI — FREE tier: 10,000 neurons/day
-// Models: @cf/black-forest-labs/flux-1-schnell (image gen, FREE)
-//         @cf/meta/llama-3.3-70b-instruct-fp8-fast (inference)
-//         @cf/stabilityai/stable-diffusion-xl-base-1.0
-//         @cf/microsoft/phi-2 (fast, lightweight)
-//         @cf/openai/whisper (audio transcription, FREE)
-//
-// → PRIMARY for: Image generation (FLUX schnell is FREE),
-//                Whisper transcription (FREE)
-//   Reason: You already use Cloudflare R2/CDN — zero extra setup
-//
-// fal.ai — for high-quality FLUX.1 Pro logo generation (already in PlanAI/Branding)
-// ═══════════════════════════════════════════════════════════════════════════════
+
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

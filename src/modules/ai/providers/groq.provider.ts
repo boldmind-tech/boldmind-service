@@ -1,13 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/providers/groq.provider.ts
-//
-// Groq Cloud — FREE tier: 6,000 RPM, 500,000 tokens/day
-// Models: llama-3.3-70b-versatile, llama-3.1-8b-instant, gemma2-9b-it,
-//         mixtral-8x7b-32768, llama-guard-3-8b
-//
-// → PRIMARY engine for: PlanAI, EduCenter tutor, Receptionist, BoldMind OS
-//   Reason: fastest inference available (300+ tokens/sec), free, great at JSON
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

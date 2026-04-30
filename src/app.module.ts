@@ -15,16 +15,15 @@ import { UserModule } from './modules/user/user.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AiModule } from './modules/ai/ai.module';
 import { PlanAIModule } from './modules/planai/planai.module';
-import { ContentModule } from './modules/content/content.module';
+import { ContentModule } from './modules/amebogist/amebogist.module';
 import { EduCenterModule } from './modules/educenter/educenter.module';
 import { AutomationModule } from './modules/automation/automation.module';
 import { MediaModule } from './modules/media/media.module';
 import { NotificationModule } from './modules/notification/notification.module';
-import { FitnessModule } from './modules/fitness/fitness.module';
 import { OSModule } from './modules/os/os.module';
 import { AdminModule } from './modules/admin/admin.module';
-import { EmailScraperModule } from './modules/emailscraper/emailscraper.module';
 import { HubModule } from './modules/hub/hub.module';
+import { VillageCircleModule } from './modules/villagecircle/villagecircle.module';
 
 @Module({
   imports: [
@@ -137,11 +136,10 @@ import { HubModule } from './modules/hub/hub.module';
     AutomationModule,
     MediaModule,
     NotificationModule,
-    FitnessModule,
     OSModule,
     AdminModule,
-    EmailScraperModule,
     HubModule,
+    VillageCircleModule,
   ],
 })
 export class AppModule { }

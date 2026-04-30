@@ -1,33 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/ai.service.ts
-//
-// THE SINGLE AI GATEWAY — All BoldMind modules import THIS service only.
-// Never import providers directly from other modules.
-//
-// ROUTING STRATEGY (priority order, each falls back to next):
-//
-// INFERENCE:
-//   1. Groq      — free, fastest (Llama 3.3 70B, 300 tok/sec)
-//   2. Gemini    — free, long-context (Gemini 2.0 Flash, 1M ctx)
-//   3. Ollama    — local dev only, zero cost
-//   4. OpenAI    — paid fallback, only when above all fail
-//
-// IMAGE GENERATION:
-//   1. CF Workers AI FLUX Schnell — free, fast (social media, banners)
-//   2. fal.ai FLUX.1 Pro          — paid, highest quality (logos, brand)
-//   3. OpenAI DALL-E 3            — paid fallback
-//
-// EMBEDDINGS:
-//   1. Gemini text-embedding-004  — free, 768-dim
-//   2. OpenAI text-embedding-3-small — paid fallback
-//
-// AUDIO TRANSCRIPTION:
-//   1. CF Workers AI Whisper      — free
-//   2. OpenAI Whisper             — paid fallback
-//
-// PROMPT CACHING: SHA256 hash → Redis (saves ~70% of repeat calls)
-// ═══════════════════════════════════════════════════════════════════════════════
-
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -711,42 +681,3 @@ Format as JSON with: { title, excerpt (max 160 chars), content (full HTML with h
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// STANDALONE EXPORTS (Legacy / Script support)
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Legacy standalone wrapper for generateOpenAIText
- * Used by AIService in content module and standalone scripts
- */
-export async function generateText(prompt: string, options: any = {}) {
-  // If we're in a script or external context without a NestJS container
-  const apiKey = process.env['OPENAI_API_KEY'];
-  if (!apiKey) throw new Error('OPENAI_API_KEY not set in environment');
-
-  const openai = new OpenAIProvider({ get: () => apiKey } as any);
-  const result = await openai.chat('You are a helpful assistant.', prompt, {
-    model: options.model ?? 'gpt-4o-mini',
-    temperature: options.temperature ?? 0.7,
-  });
-  return result.content;
-}
-
-/**
- * Legacy standalone wrapper for generateGeminiText
- * Used by AIService in content module and standalone scripts
- */
-export async function generateGeminiText(prompt: string, model: any = 'gemini-2.5-flash', systemPrompt: string = 'You are a helpful assistant.', options: any = {}) {
-  const apiKey = process.env['GEMINI_API_KEY'];
-  if (!apiKey) throw new Error('GEMINI_API_KEY not set in environment');
-
-  const gemini = new GeminiProvider({ get: () => apiKey } as any);
-  const result = await gemini.chat(systemPrompt, prompt, {
-    model,
-    jsonMode: true,
-    maxTokens: 4096,
-    ...options
-  });
-  console.log(`✅ Gemini [${model}] response content length:`, result.content.length);
-  return result.content;
-}

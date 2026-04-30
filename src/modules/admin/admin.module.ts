@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { HealthController } from './health.controller';
-import { Post, PostSchema } from '../content/schemas/post.schema';
+import { Post, PostSchema } from '../amebogist/schemas/post.schema';
 
 @Module({
   imports: [

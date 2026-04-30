@@ -166,7 +166,7 @@ export class MetaWebhookService {
       );
       return data;
     } catch (err) {
-      this.logger.error(`Failed to send WA message to ${to}`, err?.response?.data);
+      this.logger.error(`Failed to send WA message to ${to}`, (err as any)?.response?.data);
       throw err;
     }
   }
@@ -239,7 +239,7 @@ export class MetaWebhookService {
       );
       return data;
     } catch (err) {
-      this.logger.error(`Failed to send Messenger message to ${recipientId}`, err?.response?.data);
+      this.logger.error(`Failed to send Messenger message to ${recipientId}`, (err as any)?.response?.data);
       throw err;
     }
   }
@@ -256,7 +256,7 @@ export class MetaWebhookService {
       );
       return data;
     } catch (err) {
-      this.logger.error(`Failed to reply to comment ${commentId}`, err?.response?.data);
+      this.logger.error(`Failed to reply to comment ${commentId}`, (err as any)?.response?.data);
       throw err;
     }
   }
@@ -278,7 +278,7 @@ export class MetaWebhookService {
       );
       return data;
     } catch (err) {
-      this.logger.error(`Failed to send Instagram message to ${recipientId}`, err?.response?.data);
+      this.logger.error(`Failed to send Instagram message to ${recipientId}`, (err as any)?.response?.data);
       throw err;
     }
   }
@@ -303,7 +303,7 @@ export class MetaWebhookService {
       );
       return data;
     } catch (err) {
-      this.logger.error(`Failed to send WhatsApp message to ${to}`, err?.response?.data);
+      this.logger.error(`Failed to send WhatsApp message to ${to}`, (err as any)?.response?.data);
       throw err;
     }
   }

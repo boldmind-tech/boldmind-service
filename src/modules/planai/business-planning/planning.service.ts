@@ -1,8 +1,4 @@
 
-// ─────────────────────────────────────────────────────────────────────────────
-// service/src/modules/planai/business-planning/planning.service.ts
-// ─────────────────────────────────────────────────────────────────────────────
-
 import {
     Injectable,
     NotFoundException,

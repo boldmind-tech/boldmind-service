@@ -1,25 +1,3 @@
-
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// service/src/modules/ai/services/video-factory.service.ts
-//
-// VideoFactoryService — INTERNAL BullMQ-based processor
-// Previously referenced an external microservice at SOCIAL_FACTORY_SERVICE_URL.
-// Now fully internal — uses BullMQ queues to manage video/social content jobs.
-//
-// What it does:
-//   1. Converts AmeboGist articles → social media content packages
-//   2. Generates platform-specific copy (Instagram, TikTok, Facebook, Twitter/X)
-//   3. Creates WhatsApp broadcast messages
-//   4. Schedules content using BullMQ delayed jobs
-//   5. Uploads assets to Cloudflare R2
-//
-// Video generation (when funded):
-//   • NOW (free):    text overlays + image compositing (via sharp)
-//   • NEXT MONTH:    Creatomate API, Shotstack, or D-ID for real video
-//   • FUTURE:        Custom remotion-based video renderer
-// ═══════════════════════════════════════════════════════════════════════════════
-
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -37,7 +15,7 @@ export interface PostToSocialize {
     category?: string;
 }
 
-export type TargetPlatform = 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'linkedin';
+export type TargetPlatform = 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'whatsapp' | 'linkedin' | 'youtube';
 
 export interface SocialContentPackage {
     sourceId: string;
@@ -74,6 +52,7 @@ const PLATFORM_LIMITS: Record<TargetPlatform, { maxChars: number; maxHashtags: n
     tiktok: { maxChars: 2200, maxHashtags: 20 },
     whatsapp: { maxChars: 1000, maxHashtags: 0 },
     linkedin: { maxChars: 3000, maxHashtags: 10 },
+    youtube: {  maxChars: 2000, maxHashtags: 2}
 };
 
 @Injectable()
@@ -123,7 +102,7 @@ export class VideoFactoryService {
             return {
                 sourceId,
                 sourceType: 'amebogist',
-                platforms: { facebook: null, instagram: null, tiktok: null, twitter: null, whatsapp: null, linkedin: null },
+                platforms: { facebook: null, instagram: null, tiktok: null, twitter: null, whatsapp: null, linkedin: null, youtube: null},
                 status: 'queued',
                 jobId: job.id,
             };
@@ -174,7 +153,7 @@ ONLY return the JSON object.`;
         );
 
         const output: Record<TargetPlatform, PlatformContent | null> = {
-            facebook: null, instagram: null, tiktok: null, twitter: null, whatsapp: null, linkedin: null,
+            facebook: null, instagram: null, tiktok: null, twitter: null, whatsapp: null, linkedin: null, youtube: null
         };
 
         for (const platform of platforms) {
@@ -217,7 +196,7 @@ Return ONLY the message text.`,
         return {
             message: result.content.slice(0, 1000),
             imageUrl: post.media?.featuredImage,
-            ctaUrl: `https://amebogist.boldmind.ng/articles/${post._id ?? post.id}`,
+            ctaUrl: `https://amebogist.ng/posts/${post._id ?? post.id}`,
             ctaText: language === 'pidgin' ? 'Read am here 👇' : 'Read the full story 👇',
         };
     }
@@ -320,6 +299,7 @@ Return ONLY the message text.`,
             facebook: 'community-building, shareable, discussion-starter',
             whatsapp: 'personal, broadcast-ready, action-oriented',
             linkedin: 'professional, thought-leadership, business case',
+            youtube: 'cultural, community-building, elderly'
         };
         return tones[platform] ?? 'engaging, Nigerian-market-aware';
     }
@@ -332,6 +312,7 @@ Return ONLY the message text.`,
             twitter: 'landscape',
             whatsapp: 'whatsapp-flyer',
             linkedin: 'landscape',
+            youtube: 'landscape'
         };
         return formats[platform] ?? 'square';
     }

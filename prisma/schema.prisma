@@ -16,7 +16,6 @@ enum SystemRole {
   analyst
 }
 
-// EcosystemRole from auth.ts
 enum EcosystemRole {
   hustler
   founder
@@ -25,6 +24,7 @@ enum EcosystemRole {
   business_owner
   operator
   partner
+  vibe_coder
 }
 
 enum UserRole {
@@ -38,6 +38,7 @@ enum UserRole {
   founder
   creator
   student
+  vibe_coder
   business_owner
   operator
   partner
@@ -297,6 +298,10 @@ model User {
   mediaUploads       Media[]
   activityLogs       ActivityLog[]
   analyticsEvents    AnalyticsEvent[]
+
+  // ViralKit
+  generatedContents  GeneratedContent[]
+  usageRecords       UsageRecord[]
 
   // EduCenter
   cbtSessions        CBTSession[]
@@ -1413,6 +1418,482 @@ model WaitlistEntry {
   @@unique([email, productSlug])
   @@index([productSlug, status])
   @@map("waitlist_entries")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VIBE CODERS MODULE
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum VibeCoderStatus {
+  APPLIED       // Step 1 submitted — gets WhatsApp community link immediately
+  SHORTLISTED   // Admin shortlisted → assessment token email sent
+  ASSESSED      // Step 2 (deep psychology) submitted
+  ACCEPTED      // Admin accepted → payment link sent
+  ENROLLED      // Payment confirmed — full cohort access
+  REJECTED
+  WITHDRAWN
+}
+
+model VibeCoderCohort {
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String   @unique
+  status              String   @default("upcoming") // open | closed | upcoming | active | completed
+  startDate           DateTime
+  endDate             DateTime
+  applicationDeadline DateTime
+  capacity            Int      @default(30)
+  enrolledCount       Int      @default(0)
+  priceMin            Int      // in NGN kobo
+  priceMax            Int      // in NGN kobo
+  description         String?  @db.Text
+
+  applicants          VibeCoderApplicant[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("vibecoders_cohorts")
+}
+
+model VibeCoderApplicant {
+  id        String @id @default(cuid())
+
+  // Step 1 — interest form
+  name      String
+  email     String @unique
+  whatsapp  String
+  archetype String // dreamer | professionaliser | rural_builder | career_switcher
+  idea      String @db.Text
+  obstacle  String
+  commitment String
+
+  // Pipeline status
+  status    VibeCoderStatus @default(APPLIED)
+
+  // Step 2 — assessment (only after shortlisting)
+  assessmentToken  String?   @unique
+  assessmentExpiry DateTime?
+  assessmentData   Json?     // raw answers keyed by question id
+  assessmentScore  Json?     // AI-scored dimensions {mindset, clarity, learning, community, overall}
+  assessedAt       DateTime?
+
+  // Enrollment
+  cohortId    String?
+  paymentPath String?   // one_time | installment | isa | scholarship
+  paystackRef String?
+  enrolledAt  DateTime?
+
+  // Admin
+  adminNotes  String?   @db.Text
+  source      String?
+  referralCode String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cohort      VibeCoderCohort? @relation(fields: [cohortId], references: [id])
+
+  @@index([status])
+  @@index([cohortId])
+  @@index([email])
+  @@map("vibecoders_applicants")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAFEAI MODULE
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum IncidentType {
+  THEFT
+  ROBBERY
+  BURGLARY
+  ASSAULT
+  DOMESTIC_VIOLENCE
+  KIDNAPPING
+  ACCIDENT
+  FIRE
+  MEDICAL_EMERGENCY
+  SUSPICIOUS_ACTIVITY
+  MISSING_PERSON
+  FRAUD
+  CYBERCRIME
+  DRUG_RELATED
+  NOISE_COMPLAINT
+  TRESPASSING
+  VANDALISM
+  OTHER
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  EMERGENCY
+}
+
+enum IncidentStatus {
+  REPORTED
+  VERIFIED
+  INVESTIGATING
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  FALSE_REPORT
+}
+
+enum UpdateType {
+  STATUS_CHANGE
+  ASSIGNMENT
+  EVIDENCE_ADDED
+  NOTE_ADDED
+  RESOLUTION
+}
+
+enum EmergencyType {
+  EMERGENCY_911
+  FIRE
+  MEDICAL
+  POLICE
+  RESCUE
+  OTHER
+}
+
+enum ResponseStatus {
+  PENDING
+  DISPATCHED
+  EN_ROUTE
+  ARRIVED
+  IN_PROGRESS
+  RESOLVED
+  CANCELLED
+}
+
+enum AlertType {
+  CRIME_ALERT
+  MISSING_PERSON
+  WANTED_PERSON
+  TRAFFIC_ALERT
+  WEATHER_WARNING
+  COMMUNITY_NOTICE
+  SAFETY_TIP
+  CURFEW
+  EMERGENCY
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum WantedStatus {
+  ACTIVE
+  CAPTURED
+  CLEARED
+  INACTIVE
+}
+
+model Incident {
+  id                String               @id @default(uuid())
+  reporterId        String?
+  incidentType      IncidentType
+  description       String
+  latitude          Decimal              @db.Decimal(10, 8)
+  longitude         Decimal              @db.Decimal(11, 8)
+  address           String?
+  city              String?
+  state             String?
+  severity          Severity             @default(MEDIUM)
+  status            IncidentStatus       @default(REPORTED)
+  priorityScore     Int                  @default(50)
+  incidentDate      DateTime             @default(now())
+  reportedAt        DateTime             @default(now())
+  resolvedAt        DateTime?
+  evidenceUrls      String[]
+  witnesses         Json?
+  assignedOfficerId String?
+  officerNotes      String?
+  isAnonymous       Boolean              @default(false)
+  reporterContact   String?
+  aiAnalysis        Json?
+  metadata          Json                 @default("{}")
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  officer           Officer?             @relation("AssignedIncidents", fields: [assignedOfficerId], references: [id])
+  updates           IncidentUpdate[]
+  verifications     IncidentVerification[]
+
+  @@index([incidentType])
+  @@index([status])
+  @@index([severity])
+  @@index([reportedAt])
+  @@index([city, state])
+  @@index([latitude, longitude])
+  @@map("incidents")
+}
+
+model IncidentUpdate {
+  id            String     @id @default(uuid())
+  incidentId    String
+  updateType    UpdateType
+  message       String
+  updatedBy     String
+  updatedByRole String
+  attachments   String[]
+  createdAt     DateTime   @default(now())
+  incident      Incident   @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@index([createdAt])
+  @@map("incident_updates")
+}
+
+model IncidentVerification {
+  id           String   @id @default(uuid())
+  incidentId   String
+  verifiedBy   String
+  isVerified   Boolean
+  confidence   Int
+  notes        String?
+  evidenceUrls String[]
+  verifiedAt   DateTime @default(now())
+  incident     Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("incident_verifications")
+}
+
+model Officer {
+  id                String              @id @default(uuid())
+  userId            String              @unique
+  badgeNumber       String              @unique
+  rank              String?
+  department        String?
+  station           String?
+  phone             String?
+  emergencyContact  String?
+  assignedArea      Json?
+  lastLatitude      Decimal?            @db.Decimal(10, 8)
+  lastLongitude     Decimal?            @db.Decimal(11, 8)
+  lastSeenAt        DateTime?
+  isActive          Boolean             @default(true)
+  isOnDuty          Boolean             @default(false)
+  isVerified        Boolean             @default(false)
+  verifiedAt        DateTime?
+  verifiedBy        String?
+  incidentsResolved Int                 @default(0)
+  responseTime      Int?
+  rating            Decimal?            @db.Decimal(3, 2)
+  metadata          Json                @default("{}")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  assignedIncidents Incident[]          @relation("AssignedIncidents")
+  patrolLogs        PatrolLog[]
+  emergencyResponses EmergencyResponse[]
+
+  @@index([badgeNumber])
+  @@index([isActive])
+  @@index([station])
+  @@map("officers")
+}
+
+model PatrolLog {
+  id                 String   @id @default(uuid())
+  officerId          String
+  startTime          DateTime
+  endTime            DateTime?
+  route              Json?
+  distanceKm         Decimal? @db.Decimal(8, 2)
+  incidentsResponded Int      @default(0)
+  notes              String?
+  checkpoints        Json?
+  createdAt          DateTime @default(now())
+  officer            Officer  @relation(fields: [officerId], references: [id], onDelete: Cascade)
+
+  @@index([officerId])
+  @@index([startTime])
+  @@map("patrol_logs")
+}
+
+model EmergencyResponse {
+  id                 String         @id @default(uuid())
+  incidentId         String?
+  emergencyType      EmergencyType
+  description        String
+  latitude           Decimal        @db.Decimal(10, 8)
+  longitude          Decimal        @db.Decimal(11, 8)
+  address            String?
+  callerPhone        String?
+  callerName         String?
+  status             ResponseStatus @default(PENDING)
+  priority           Int
+  dispatchedOfficers String[]
+  reportedAt         DateTime       @default(now())
+  dispatchedAt       DateTime?
+  arrivedAt          DateTime?
+  resolvedAt         DateTime?
+  responseNotes      String?
+  outcome            String?
+  metadata           Json           @default("{}")
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  officers           Officer[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([reportedAt])
+  @@map("emergency_responses")
+}
+
+model SafetyAlert {
+  id           String    @id @default(uuid())
+  alertType    AlertType
+  title        String
+  message      String
+  severity     Severity
+  targetAreas  Json?
+  latitude     Decimal?  @db.Decimal(10, 8)
+  longitude    Decimal?  @db.Decimal(11, 8)
+  radiusKm     Decimal?  @db.Decimal(6, 2)
+  isActive     Boolean   @default(true)
+  publishedAt  DateTime  @default(now())
+  expiresAt    DateTime?
+  issuedBy     String
+  issuedByRole String
+  viewCount    Int       @default(0)
+  shareCount   Int       @default(0)
+  metadata     Json      @default("{}")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([severity])
+  @@index([publishedAt])
+  @@map("safety_alerts")
+}
+
+model CrimeHotspot {
+  id            String       @id @default(uuid())
+  latitude      Decimal      @db.Decimal(10, 8)
+  longitude     Decimal      @db.Decimal(11, 8)
+  area          String
+  city          String
+  state         String
+  crimeType     IncidentType
+  incidentCount Int          @default(0)
+  periodStart   DateTime
+  periodEnd     DateTime
+  riskScore     Int
+  timePatterns  Json?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([city, state])
+  @@index([riskScore])
+  @@map("crime_hotspots")
+}
+
+model PoliceStation {
+  id            String   @id @default(uuid())
+  name          String
+  stationCode   String   @unique
+  latitude      Decimal  @db.Decimal(10, 8)
+  longitude     Decimal  @db.Decimal(11, 8)
+  address       String
+  city          String
+  state         String
+  phone         String?
+  email         String?
+  serviceArea   Json?
+  officerCount  Int      @default(0)
+  vehicleCount  Int      @default(0)
+  isOperational Boolean  @default(true)
+  metadata      Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([city, state])
+  @@map("police_stations")
+}
+
+model WantedPerson {
+  id                   String       @id @default(uuid())
+  name                 String
+  alias                String[]
+  age                  Int?
+  gender               Gender?
+  height               String?
+  weight               String?
+  complexion           String?
+  charges              String[]
+  description          String
+  photoUrls            String[]
+  lastSeenLocation     String?
+  lastSeenDate         DateTime?
+  status               WantedStatus @default(ACTIVE)
+  priority             Int
+  rewardAmount         Decimal?     @db.Decimal(10, 2)
+  tiplinePhone         String?
+  viewCount            Int          @default(0)
+  tipCount             Int          @default(0)
+  metadata             Json         @default("{}")
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@map("wanted_persons")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VIRALKIT MODULE
+// ─────────────────────────────────────────────────────────────────────────────
+
+model GeneratedContent {
+  id           String   @id @default(cuid())
+  userId       String
+  type         String   // image | image_edit | video
+  status       String   // generating | ready | failed
+  prompt       String
+  model        String
+  aspectRatio  String?
+  fileUrl      String?
+  width        Int?
+  height       Int?
+  falRequestId String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("generated_contents")
+}
+
+model UsageRecord {
+  id          String   @id @default(cuid())
+  userId      String
+  productSlug String   @default("viralkit")
+  periodStart DateTime
+  periodEnd   DateTime
+  imagesUsed  Int      @default(0)
+  videosUsed  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productSlug])
+  @@index([periodEnd])
+  @@map("usage_records")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
