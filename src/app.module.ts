@@ -10,7 +10,7 @@ import { DatabaseModule } from "./database/database.module";
 import { RedisService } from "./database/redis.service";
 
 // Queues — single registration point for every BullMQ queue in the app
-import { QueuesModule } from "./common/queues/queues.module";   // ← ADD
+import { QueuesModule } from "./common/queues/queues.module"; // ← ADD
 
 // Feature modules
 import { AuthModule } from "./modules/auth/auth.module";
@@ -27,6 +27,8 @@ import { AdminModule } from "./modules/admin/admin.module";
 import { HubModule } from "./modules/hub/hub.module";
 import { VillageCircleModule } from "./modules/villagecircle/villagecircle.module";
 import { WalletModule } from "./modules/wallet/wallet.module";
+import { ApiModule } from "./modules/api/api.module";
+import { PolymindModule } from "./modules/polymind/polymind.module";
 
 @Module({
   imports: [
@@ -71,7 +73,7 @@ import { WalletModule } from "./modules/wallet/wallet.module";
     }),
 
     // ── Every queue, registered exactly once ─────────────────────────────────
-    QueuesModule,   // ← ADD — must come after BullModule.forRootAsync
+    QueuesModule, // ← ADD — must come after BullModule.forRootAsync
 
     // ── Feature Modules ───────────────────────────────────────────────────────
     AuthModule,
@@ -88,6 +90,8 @@ import { WalletModule } from "./modules/wallet/wallet.module";
     HubModule,
     VillageCircleModule,
     WalletModule,
+    ApiModule,
+    PolymindModule,
   ],
 })
 export class AppModule {}

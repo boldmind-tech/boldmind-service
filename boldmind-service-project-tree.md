@@ -27,6 +27,8 @@ boldmind-service
 │  │  │  └─ migration.sql
 │  │  ├─ 20260711235234_user_update
 │  │  │  └─ migration.sql
+│  │  ├─ 20260716183055_update_missing_columu
+│  │  │  └─ migration.sql
 │  │  └─ migration_lock.toml
 │  ├─ schema.prisma
 │  └─ seed.ts
@@ -125,7 +127,6 @@ boldmind-service
 │  │  ├─ api
 │  │  │  ├─ api-key
 │  │  │  │  └─ index.ts
-│  │  │  ├─ enterprise
 │  │  │  └─ webhook
 │  │  │     └─ index.ts
 │  │  ├─ auth
@@ -162,8 +163,6 @@ boldmind-service
 │  │  │  ├─ educenter.controller.ts
 │  │  │  ├─ educenter.module.ts
 │  │  │  ├─ educenter.service.ts
-│  │  │  ├─ lms
-│  │  │  ├─ school
 │  │  │  └─ services
 │  │  │     └─ aloc.service.ts
 │  │  ├─ hub
@@ -257,8 +256,6 @@ boldmind-service
 │  │  │  │  └─ social-media.service.ts
 │  │  │  └─ social-media-manager
 │  │  │     └─ metawebhook.service.ts
-│  │  ├─ polymind
-│  │  ├─ test.md
 │  │  ├─ user
 │  │  │  ├─ referral.service.ts
 │  │  │  ├─ user-me.controller.ts

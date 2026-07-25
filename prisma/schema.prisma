@@ -539,6 +539,8 @@ model School {
   updatedAt       DateTime  @updatedAt
   admin           User      @relation(fields: [adminUserId], references: [id])
 
+  assignments SchoolAssignment[]
+
   @@map("schools")
 }
 
@@ -815,6 +817,8 @@ model UserProfile {
   teamSize      Int?
   annualRevenue String?
 
+  schoolId String?
+
   // EduCenter specific
   examTarget  ExamType? // What exam the student is preparing for
   targetYear  Int? // Year of exam (e.g., 2026)
@@ -827,6 +831,22 @@ model UserProfile {
 
   @@index([referralCode])
   @@map("user_profiles")
+}
+
+model SchoolAssignment {
+  id            String   @id @default(cuid())
+  schoolId      String
+  classGroup    String // e.g. "SS3A"
+  examType      ExamType
+  subject       String
+  dueDate       DateTime
+  questionCount Int
+  createdAt     DateTime @default(now())
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@map("school_assignments")
 }
 
 model ActivityLog {
