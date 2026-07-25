@@ -170,15 +170,17 @@ export class EnterpriseService {
       params.tone ?? "engaging"
     }\n\nReturn only the caption text, under 220 characters, followed by 3-5 relevant hashtags.`;
 
-    const result = await (this.ai as any).generateNigerianContent({
-      provider: "openai",
-      prompt: userPrompt,
-      systemPrompt,
+    const result = await this.ai.chat(systemPrompt, userPrompt, {
+      task: "creative",
       maxTokens: 300,
-      language: "en",
+      cacheTtl: 0,
     });
 
-    return { caption: result.content, tokensUsed: result.tokensUsed };
+    return {
+      caption: result.content,
+      provider: result.provider,
+      model: result.model,
+    };
   }
 
   // ── planai:branding:logo ─────────────────────────────────────────────────

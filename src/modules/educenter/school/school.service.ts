@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../database/prisma.service";
 import {
   BulkEnrollStudentsDto,
@@ -11,14 +12,6 @@ import {
   RegisterSchoolDto,
 } from "./dto/school.dto";
 
-/**
- * SchoolService — depends on two Prisma additions not yet in schema.prisma:
- * `UserProfile.schoolId` and the `SchoolAssignment` model. See
- * ./SCHEMA-ADDITIONS-REQUIRED.prisma for the exact diff + migration command.
- * Until that migration runs, the `schoolId` field access and
- * `prisma.schoolAssignment` calls below will fail at runtime (they will
- * still compile once `prisma generate` picks up the new fields).
- */
 @Injectable()
 export class SchoolService {
   constructor(private readonly prisma: PrismaService) {}
@@ -111,27 +104,31 @@ export class SchoolService {
     const school = await this.requireOwnSchool(adminUserId);
     const skip = (page - 1) * pageSize;
 
-    const where = {
+    // Explicitly typed as Prisma.UserProfileWhereInput so `mode` resolves to
+    // the Prisma.QueryMode enum instead of widening to `string` (which is
+    // what caused the "Type 'string' is not assignable to type 'never'"
+    // error — an inline object literal has no way to narrow `mode` to the
+    // enum without either `as const` on each literal or, more robustly, an
+    // explicit variable type like this one).
+    const where: Prisma.UserProfileWhereInput = {
       schoolId: school.id,
       ...(search
         ? {
             user: {
-              is: {
-                OR: [
-                  {
-                    name: {
-                      contains: search,
-                      mode: "insensitive" as const,
-                    },
+              OR: [
+                {
+                  name: {
+                    contains: search,
+                    mode: Prisma.QueryMode.insensitive,
                   },
-                  {
-                    email: {
-                      contains: search,
-                      mode: "insensitive" as const,
-                    },
+                },
+                {
+                  email: {
+                    contains: search,
+                    mode: Prisma.QueryMode.insensitive,
                   },
-                ],
-              },
+                },
+              ],
             },
           }
         : {}),
@@ -170,12 +167,19 @@ export class SchoolService {
     const userIds = students.map((s) => s.userId);
     if (!userIds.length) return [];
 
+    const where: Prisma.SubjectPerformanceWhereInput = {
+      userId: { in: userIds },
+      ...(examType
+        ? {
+            examType:
+              examType as Prisma.SubjectPerformanceWhereInput["examType"],
+          }
+        : {}),
+      ...(subject ? { subject } : {}),
+    };
+
     return this.prisma.subjectPerformance.findMany({
-      where: {
-        userId: { in: userIds },
-        ...(examType ? { examType: examType as never } : {}),
-        ...(subject ? { subject } : {}),
-      },
+      where,
       orderBy: { averagePercent: "desc" },
     });
   }
