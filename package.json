@@ -1,6 +1,6 @@
 {
   "name": "@boldmindng/service",
-  "version": "2.0.1",
+  "version": "2.2.2",
   "private": true,
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
@@ -22,11 +22,11 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@aws-sdk/client-s3": "^3.1007.0",
     "@aws-sdk/s3-request-presigner": "^3.1007.0",
-    "@boldmindng/analytics": "13.0.0",
-    "@boldmindng/deploy-config": "1.1.0",
+    "@boldmindng/analytics": "14.0.0",
+    "@boldmindng/deploy-config": "1.1.1",
     "@boldmindng/email": "8.0.0",
     "@boldmindng/sms": "1.1.0",
-    "@boldmindng/utils": "10.1.0",
+    "@boldmindng/utils": "11.0.0",
     "@fal-ai/client": "^1.10.0",
     "@google/generative-ai": "^0.21.0",
     "@nestjs/axios": "^4.0.1",

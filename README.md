@@ -1,36 +1,7 @@
 # start
 
----
-
-- `src/modules/automation/queue/*.processor.ts` (ai-jobs, email-campaign, social-post)
-- `src/modules/wallet/queue/wallet-credit.processor.ts`
-- `src/modules/planai/processors/planai.processor.ts`
-- `src/modules/notification/processors/*.processor.ts`
-- `src/modules/ai/processors/social-factory.processor.ts`
-
----
-
-## The v2 "real update" wave plan
-
-Agreed — moving from patches to a proper pass. Here's the flow, sequenced so nothing downstream breaks while upstream is mid-change:
-
-## Wave A — Inventory (no code changes)
-
-1. Enumerate every endpoint actually implemented in `boldmind-service` right now (controller-by-controller, not the canonical doc's aspirational list) — I'll need the actual controller files, not just the tree.
-2. Cross-reference against `boldmind-service-canonical.md` §2 to flag: endpoints that exist but aren't documented, and documented endpoints that don't exist yet.
-3. Produce one source-of-truth endpoint list (method, path, auth, request/response shape) pulled from real DTOs/decorators, not prose.
-
-**Wave B — `api-client` package (real update, not addendum)** 4. Rewrite `client.ts` for dual-auth (`jwt` | `apikey`) per the spec already drafted in `boldmind-shared-monorepo.md` §5.1. 5. Regenerate every `*.api.ts` file against the Wave A endpoint list — including the 5 missing ones (`wallet.api.ts`, `developer.api.ts`, `polymind.api.ts`, `educenter-lms.api.ts`, `educenter-school.api.ts`). 6. Fix `os.api.ts`/`fitness.api.ts` legacy aliases to just re-export cleanly.
-
-**Wave C — `auth` package** 7. Verify `createAuthMiddleware` protected-path lists per app match reality. 8. Confirm `buildSsoRelayUrl` is used everywhere (ties into the still-open Google OAuth double-call bug in `auth.controller.ts` — worth fixing in this same pass since `auth` package consumes it).
-
-**Wave D — other shared packages touched by the endpoint changes** 9. `email`, `sms`, `wallet` packages — sync types/exports to match whatever Wave A found.
-
-**Wave E — web apps** 10. Bump `@boldmindng/api-client` + `@boldmindng/auth` in each of the 5 Next.js apps one at a time (boldmind-web → planai-suite → amebogist-web → educenter-web → villagecircle-web), fixing call-site breaks as they surface from the real API shapes.
-
-For Wave A to start, I need the actual controller files (not the tree/doc) — `notification.controller.ts` is a good first one since we were mid-work on it. Want to start there once Redis is settled, or tackle both in parallel?
-
 ```text
+
 boldmind-service
 ├─ .npmrc
 ├─ Dockerfile
@@ -59,6 +30,10 @@ boldmind-service
 │  │  │  └─ migration.sql
 │  │  ├─ 20260711235234_user_update
 │  │  │  └─ migration.sql
+│  │  ├─ 20260716183055_update_missing_columu
+│  │  │  └─ migration.sql
+│  │  ├─ 20260725022003_add_school_management
+│  │  │  └─ migration.sql
 │  │  └─ migration_lock.toml
 │  ├─ schema.prisma
 │  └─ seed.ts
@@ -72,6 +47,7 @@ boldmind-service
 │  │  ├─ constants
 │  │  │  └─ queues.ts
 │  │  ├─ decorators
+│  │  │  ├─ api-scopes.decorator.ts
 │  │  │  ├─ index.ts
 │  │  │  ├─ permissions.decorator.ts
 │  │  │  ├─ public.decorator.ts
@@ -156,10 +132,24 @@ boldmind-service
 │  │  │  └─ analytics.service.ts
 │  │  ├─ api
 │  │  │  ├─ api-key
-│  │  │  │  └─ index.ts
+│  │  │  │  ├─ api-key.controller.ts
+│  │  │  │  ├─ api-key.dto.ts
+│  │  │  │  ├─ api-key.guard.ts
+│  │  │  │  └─ api-key.service.ts
+│  │  │  ├─ api.module.ts
 │  │  │  ├─ enterprise
+│  │  │  │  ├─ enterprise.controller.ts
+│  │  │  │  ├─ enterprise.dto.ts
+│  │  │  │  └─ enterprise.service.ts
+│  │  │  ├─ rate-limit
+│  │  │  │  └─ api-rate-limit.guard.ts
 │  │  │  └─ webhook
-│  │  │     └─ index.ts
+│  │  │     ├─ schemas
+│  │  │     │  └─ webhook-delivery.schema.ts
+│  │  │     ├─ webhook-events.constant.ts
+│  │  │     ├─ webhook.controller.ts
+│  │  │     ├─ webhook.dto.ts
+│  │  │     └─ webhook.service.ts
 │  │  ├─ auth
 │  │  │  ├─ auth.controller.ts
 │  │  │  ├─ auth.guard.ts
@@ -195,7 +185,15 @@ boldmind-service
 │  │  │  ├─ educenter.module.ts
 │  │  │  ├─ educenter.service.ts
 │  │  │  ├─ lms
+│  │  │  │  ├─ dto
+│  │  │  │  │  └─ lms.dto.ts
+│  │  │  │  ├─ lms.controller.ts
+│  │  │  │  └─ lms.service.ts
 │  │  │  ├─ school
+│  │  │  │  ├─ dto
+│  │  │  │  │  └─ school.dto.ts
+│  │  │  │  ├─ school.controller.ts
+│  │  │  │  └─ school.service.ts
 │  │  │  └─ services
 │  │  │     └─ aloc.service.ts
 │  │  ├─ hub
@@ -290,7 +288,12 @@ boldmind-service
 │  │  │  └─ social-media-manager
 │  │  │     └─ metawebhook.service.ts
 │  │  ├─ polymind
-│  │  ├─ test.md
+│  │  │  ├─ polymind.controller.ts
+│  │  │  ├─ polymind.dto.ts
+│  │  │  ├─ polymind.module.ts
+│  │  │  ├─ polymind.service.ts
+│  │  │  └─ schemas
+│  │  │     └─ comparison.schema.ts
 │  │  ├─ user
 │  │  │  ├─ referral.service.ts
 │  │  │  ├─ user-me.controller.ts
