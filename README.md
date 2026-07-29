@@ -1,16 +1,17 @@
-# start
+# boldmind-service
 
 ```text
-
 boldmind-service
 ├─ .npmrc
 ├─ Dockerfile
 ├─ PLANAI-GES.md
 ├─ README.md
 ├─ TEST.TS
+├─ boldmind-env-reconciliation-v1.md
 ├─ boldmind-service-canonical.md
+├─ boldmind-service-live-routes.md
 ├─ boldmind-service-project-tree.md
-├─ boldmind-system-design-v2.md
+├─ boldmind-system-design-v3.0.md
 ├─ nest-cli.json
 ├─ package.json
 ├─ pnpm-lock.yaml
@@ -38,7 +39,6 @@ boldmind-service
 │  ├─ schema.prisma
 │  └─ seed.ts
 ├─ prisma.config.ts
-├─ project-manager.service.ts
 ├─ railway.toml
 ├─ redis setup.md
 ├─ src
@@ -350,6 +350,7 @@ boldmind-service
 │  └─ types
 │     └─ express-multer.d.ts
 ├─ tsconfig.build.json
-└─ tsconfig.json
+├─ tsconfig.json
+└─ upgrade.md
 
 ```

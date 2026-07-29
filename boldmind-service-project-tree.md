@@ -1,4 +1,7 @@
-```
+# boldmind-service-project-tree
+
+```text
+
 boldmind-service
 ├─ .npmrc
 ├─ Dockerfile
@@ -29,6 +32,8 @@ boldmind-service
 │  │  │  └─ migration.sql
 │  │  ├─ 20260716183055_update_missing_columu
 │  │  │  └─ migration.sql
+│  │  ├─ 20260725022003_add_school_management
+│  │  │  └─ migration.sql
 │  │  └─ migration_lock.toml
 │  ├─ schema.prisma
 │  └─ seed.ts
@@ -42,6 +47,7 @@ boldmind-service
 │  │  ├─ constants
 │  │  │  └─ queues.ts
 │  │  ├─ decorators
+│  │  │  ├─ api-scopes.decorator.ts
 │  │  │  ├─ index.ts
 │  │  │  ├─ permissions.decorator.ts
 │  │  │  ├─ public.decorator.ts
@@ -126,9 +132,24 @@ boldmind-service
 │  │  │  └─ analytics.service.ts
 │  │  ├─ api
 │  │  │  ├─ api-key
-│  │  │  │  └─ index.ts
+│  │  │  │  ├─ api-key.controller.ts
+│  │  │  │  ├─ api-key.dto.ts
+│  │  │  │  ├─ api-key.guard.ts
+│  │  │  │  └─ api-key.service.ts
+│  │  │  ├─ api.module.ts
+│  │  │  ├─ enterprise
+│  │  │  │  ├─ enterprise.controller.ts
+│  │  │  │  ├─ enterprise.dto.ts
+│  │  │  │  └─ enterprise.service.ts
+│  │  │  ├─ rate-limit
+│  │  │  │  └─ api-rate-limit.guard.ts
 │  │  │  └─ webhook
-│  │  │     └─ index.ts
+│  │  │     ├─ schemas
+│  │  │     │  └─ webhook-delivery.schema.ts
+│  │  │     ├─ webhook-events.constant.ts
+│  │  │     ├─ webhook.controller.ts
+│  │  │     ├─ webhook.dto.ts
+│  │  │     └─ webhook.service.ts
 │  │  ├─ auth
 │  │  │  ├─ auth.controller.ts
 │  │  │  ├─ auth.guard.ts
@@ -163,6 +184,16 @@ boldmind-service
 │  │  │  ├─ educenter.controller.ts
 │  │  │  ├─ educenter.module.ts
 │  │  │  ├─ educenter.service.ts
+│  │  │  ├─ lms
+│  │  │  │  ├─ dto
+│  │  │  │  │  └─ lms.dto.ts
+│  │  │  │  ├─ lms.controller.ts
+│  │  │  │  └─ lms.service.ts
+│  │  │  ├─ school
+│  │  │  │  ├─ dto
+│  │  │  │  │  └─ school.dto.ts
+│  │  │  │  ├─ school.controller.ts
+│  │  │  │  └─ school.service.ts
 │  │  │  └─ services
 │  │  │     └─ aloc.service.ts
 │  │  ├─ hub
@@ -256,6 +287,13 @@ boldmind-service
 │  │  │  │  └─ social-media.service.ts
 │  │  │  └─ social-media-manager
 │  │  │     └─ metawebhook.service.ts
+│  │  ├─ polymind
+│  │  │  ├─ polymind.controller.ts
+│  │  │  ├─ polymind.dto.ts
+│  │  │  ├─ polymind.module.ts
+│  │  │  ├─ polymind.service.ts
+│  │  │  └─ schemas
+│  │  │     └─ comparison.schema.ts
 │  │  ├─ user
 │  │  │  ├─ referral.service.ts
 │  │  │  ├─ user-me.controller.ts
@@ -313,5 +351,6 @@ boldmind-service
 │     └─ express-multer.d.ts
 ├─ tsconfig.build.json
 └─ tsconfig.json
+
 
 ```
