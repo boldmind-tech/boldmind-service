@@ -34,8 +34,9 @@
 22. [Master Output Checklist](#22-master-output-checklist)
 23. [Package Audit Checklists](#23-package-audit-checklists)
 24. [Appendix A: Database ER Diagram](#24-appendix-a-database-er-diagram)
-25. [Appendix B: Redis Reference Implementation](#25-appendix-b-redis-reference-implementation)
+25. [Appendix B: Redis & Queue Reference Implementation](#25-appendix-b-redis--queue-reference-implementation)
 26. [Appendix C: Individual App Onboarding](#26-appendix-c-individual-app-onboarding)
+27. [Social Media Management & Branding Architecture](#27-social-media-management--branding-architecture)
 
 ---
 
@@ -645,7 +646,7 @@ REDIS_CACHE_URL     → ALOC questions, exchange rates, computed stats (no persi
 | Admin dashboard stats      | CACHE    | `admin:stats:{date}`              | 15 minutes |
 | PlanAI tool access map     | CACHE    | `planai:access:{userId}`          | 5 minutes  |
 
-Full `RedisService` and BullMQ wiring implementation: see §25 (Appendix B).
+Full `RedisService` and BullMQ wiring implementation: see §25 (Appendix B) — **now updated to the hardened, incident-fixed version; see §25.0 for what changed and why.**
 
 ---
 
@@ -1338,25 +1339,37 @@ Free tier: 50 comparisons/month, 2 models, last-10 history. Pro (₦3,500/mo): u
 
 Uses **REDIS_QUEUE** instance exclusively for BullMQ.
 
-| Queue                 | Processor                                      | Priority     | Retries | Notes                 |
-| --------------------- | ---------------------------------------------- | ------------ | ------- | --------------------- |
-| `email-notifications` | `automation/queue/email-campaign.processor.ts` | 5 (Normal)   | 3× exp  | Via Resend            |
-| `sms-otp`             | `notification/notification.service.ts`         | 2 (High)     | 2×      | WhatsApp→SMS fallback |
-| `social-publishing`   | `automation/queue/social-post.processor.ts`    | 5            | 2×      | Delayed jobs          |
-| `ai-generation`       | `automation/queue/ai-jobs.processor.ts`        | 5            | 2×      | Provider fallback     |
-| `image-generation`    | `ai/processors/social-factory.processor.ts`    | 5            | 1×      | fal.ai → DALL-E       |
-| `payroll-processing`  | `planai/processors/planai.processor.ts`        | 3 (High)     | 0       | Idempotent            |
-| `media-processing`    | `media/media.service.ts`                       | 5            | 2×      | R2 upload + scan      |
-| `payment-webhook`     | `payment/payment.service.ts`                   | 1 (Critical) | 5× 10s  | Paystack retries 72hr |
-| `wallet-credit`       | `wallet/wallet.service.ts`                     | 2 (High)     | 3×      | Must succeed          |
-| `trend-analysis`      | `ai/services/trend.service.ts`                 | 8 (Low)      | 1×      | Cron every 2h         |
-| `kolo-reminders`      | `villagecircle/kolo-ai/kolo-ai.service.ts`     | 5            | 1×      | WhatsApp reminders    |
-| `polymind-query`      | `polymind/polymind.service.ts`                 | 5            | 1×      | Fan-out AI calls      |
-| `webhook-delivery`    | `api/webhook-delivery.service.ts`              | 5            | 3× exp  | Enterprise webhooks   |
-| `ndpa-erasure`        | `user/user.service.ts`                         | 9 (Low)      | 0       | Cron: daily           |
-| `seo-sitemap`         | `amebogist/rss.service.ts`                     | 9 (Low)      | 0       | Cron: nightly         |
+> **v3.1 update:** `src/common/constants/queues.ts` was rewritten (see §25.2 for the full file). It adds several queues that previously existed in code but were undocumented, flags two queues (`NOTIFICATIONS_DISPATCH`, `CONTENT_PROCESSING`) as **VERIFY** — meaning they were found registered with no confirmed consumer/processor — and introduces a `JOBS` object so job names are grouped by domain instead of scattered as inline string literals. The table below is updated to match the new file; treat `queues.ts` itself as the source of truth going forward, this table as a human-readable summary of it.
 
-Full typed `queues.ts` constants file — see §25 Appendix B.
+| Queue                      | Processor                                             | Priority     | Retries           | Notes                                                                                                                                               |
+| -------------------------- | ----------------------------------------------------- | ------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email-notifications`      | `automation/queue/email-campaign.processor.ts`        | 5 (Normal)   | 3× exp            | Via Resend. Job names: `send-batch`, `expiry-reminder`, `broadcast-email`                                                                           |
+| `sms-otp`                  | `notification/notification.service.ts`                | 2 (High)     | 2× exp            | WhatsApp→SMS fallback                                                                                                                               |
+| `push-notifications`       | `notification/processors/push-broadcast.processor.ts` | 5 (Normal)   | 2× fixed          | Job name: `broadcast-push`. **New** — previously undocumented, confirmed live                                                                       |
+| `marketing-automation`     | _(processor TBD)_                                     | 5 (Normal)   | 3× exp            | **New** — previously undocumented, confirmed registered                                                                                             |
+| `notifications` (dispatch) | _(no confirmed consumer)_                             | 5 (Normal)   | 2× exp            | ⚠️ **VERIFY** — flagged in `queues.ts` as possibly redundant with the three queues above; confirm in `notification.service.ts` before relying on it |
+| `social-publishing`        | `automation/queue/social-post.processor.ts`           | 5            | 2× exp            | Delayed jobs. Job name: `post`                                                                                                                      |
+| `ai-generation`            | `automation/queue/ai-jobs.processor.ts`               | 5            | 2× exp            | Provider fallback. Job name: `email-scrape` (Business Discovery)                                                                                    |
+| `image-generation`         | `ai/processors/social-factory.processor.ts`           | 5            | 1×                | fal.ai → DALL-E                                                                                                                                     |
+| `social-factory`           | _(processor TBD)_                                     | 5            | 2× exp            | ⚠️ VERIFY against `social-factory.processor.ts` intent — may overlap with `image-generation`                                                        |
+| `video-render`             | _(processor TBD)_                                     | 5            | 1×                | ⚠️ VERIFY                                                                                                                                           |
+| `content-seo`              | _(processor TBD)_                                     | 7 (Low-ish)  | 1×                | ⚠️ VERIFY                                                                                                                                           |
+| `content` (processing)     | _(no confirmed consumer)_                             | 6            | 2× exp            | ⚠️ **VERIFY** — flagged as possibly used by `rss.service.ts`/`amebogist.service.ts`; no `@Processor` class currently visible                        |
+| `payroll-processing`       | `planai/processors/planai.processor.ts`               | 3 (High)     | 0 (`attempts: 1`) | Idempotent                                                                                                                                          |
+| `media-processing`         | `media/media.service.ts`                              | 5            | 2× exp            | R2 upload + scan                                                                                                                                    |
+| `ai-agent-tasks`           | _(processor TBD — BizAgentTaskProcessor)_             | 4 (High-ish) | 3× exp            | **New.** Job name: `agent-task` — taskType lives in `job.data`, not `job.name`                                                                      |
+| `payment-webhook`          | `payment/payment.service.ts`                          | 1 (Critical) | 5× fixed 10s      | Paystack retries 72hr                                                                                                                               |
+| `wallet-credit`            | `wallet/wallet.service.ts`                            | 2 (High)     | 3× exp            | Must succeed                                                                                                                                        |
+| `trend-analysis`           | `ai/services/trend.service.ts`                        | 8 (Low)      | 0 (`attempts: 1`) | Cron every 2h                                                                                                                                       |
+| `kolo-reminders`           | `villagecircle/kolo-ai/kolo-ai.service.ts`            | 5            | 0 (`attempts: 1`) | WhatsApp reminders                                                                                                                                  |
+| `polymind-query`           | `polymind/polymind.service.ts`                        | 5            | 0 (`attempts: 1`) | Fan-out AI calls                                                                                                                                    |
+| `webhook-delivery`         | `api/webhook-delivery.service.ts`                     | 5            | 3× exp            | Enterprise webhooks                                                                                                                                 |
+| `ndpa-erasure`             | `user/user.service.ts`                                | 9 (Low)      | 0 (`attempts: 1`) | Cron: daily                                                                                                                                         |
+| `seo-sitemap`              | `amebogist/rss.service.ts`                            | 9 (Low)      | 0 (`attempts: 1`) | Cron: nightly                                                                                                                                       |
+
+**Before relying on the two VERIFY rows:** open `notification.service.ts` (for `notifications`/dispatch) and `amebogist.service.ts` + `rss.service.ts` (for `content`/processing) and confirm whether these queues have live consumers or are dead registrations left over from an earlier refactor. Don't delete them from `queues.ts` without that confirmation — a queue with jobs already sitting in Redis that gets un-registered will silently orphan those jobs.
+
+Full updated `queues.ts` and `redis.service.ts` — see §25 (Appendix B), which now supersedes the previous version of that appendix.
 
 ---
 
@@ -1405,6 +1418,14 @@ Must never appear in any Next.js frontend `package.json` — contains secret pay
 ### 17.6 Live-routes drift
 
 See §6.3 for the full reconciliation table between designed contract and actually-deployed routes.
+
+### 17.7 Queue registrations without confirmed consumers (new, v3.1)
+
+`notifications` (dispatch) and `content` (processing) are both registered in `queues.ts` but have no `@Processor` class currently visible consuming them. See §16's VERIFY rows — resolve before assuming either queue is safe to remove or safe to rely on.
+
+### 17.8 Prior Redis incident — root cause now documented and fixed in code (informational)
+
+On 2026-07-15, Redis clients were intermittently connecting to `127.0.0.1:6379` instead of the configured `REDIS_*_URL` hosts. Root cause: the three `Redis` clients were being constructed inside an async `onModuleInit()` using `lazyConnect: true` + `await client.connect()`, but Nest resolves `useFactory` dependency injection (e.g. `BullModule.forRootAsync`'s `inject: [RedisService]` → `connection: redis.queue`) while building the provider graph — **before** any `onModuleInit()` hook runs anywhere in the app. `redis.queue` was therefore still `undefined` at the moment BullMQ read it, so ioredis silently fell back to its hardcoded default. **Fixed** in the current `redis.service.ts` (§25.1) by constructing all three clients synchronously in the constructor. No action needed unless this file is reverted to an older version — if anyone reintroduces `onModuleInit`-based client construction, this incident will recur.
 
 ---
 
@@ -1621,6 +1642,10 @@ KoloAI, ReceiptGenius, BorderlessRemit, PowerAlert, FarmGate — one at a time p
 
 PgBouncer in front of Neon, full NDPA erasure pipeline, PostHog session replays, structured logging (Datadog/Axiom), k6 load test at 1000 concurrent users.
 
+### Wave 7 — Social Media Automation Rollout (new, v3.1)
+
+Wire the Social Media Manager brand-kit engine (§27, Part 3) into `planai/social/*`: `BrandKit` Prisma model + migration, `SocialPost`/`PostStatus`/`Platform` enums, `SYSTEM_TONE_REFERENCE_MAP` prompt-composition helper wired into `ai.service.ts`, auto-branding canvas post-processor for fal.ai image outputs, `SocialAccountMetrics` analytics wiring with UTM-based `clicksToEcosystem`/`conversions` tracking. Depends on Wave 0 (Redis split, for queue-backed scheduling) and Wave 2 (Social Media Manager base CRUD).
+
 ---
 
 ## 22. Master Output Checklist
@@ -1656,6 +1681,8 @@ Use for every code generation task, PR, scaffold, or AI-generated output.
 [ ] C1. Three instances used correctly: SESSION (tokens/OTP/limits/flags), QUEUE (BullMQ only), CACHE (ALOC/rates/stats).
 [ ] C2. BullMQ connection is ALWAYS redis.queue, never session or cache.
 [ ] C3. Key naming: {namespace}:{entity}:{id}.
+[ ] C4. Clients are constructed synchronously in RedisService's constructor, never inside onModuleInit (§17.8).
+[ ] C5. Prefer scanKeys() over the deprecated keys() — KEYS blocks the Redis event loop under load.
 ```
 
 ### D — Wallet
@@ -1713,6 +1740,16 @@ Use for every code generation task, PR, scaffold, or AI-generated output.
 [ ] I5. Paystack webhook: HMAC-SHA512 of raw body verified BEFORE queueing; 400 immediately if invalid.
 ```
 
+### J — Brand & Social Media (new, v3.1 — see §27)
+
+```text
+[ ] J1. Any auto-generated social/brand asset uses the product's linear-gradient background (135deg / diagonal), centered icon at 40% container size, product name bottom-left, tagline bottom-right — per §27 Part 1 spec, not ad-hoc layouts.
+[ ] J2. Workspace-level BrandKit colors/fonts/logo are read from the workspace's saved BrandKit record, never hardcoded per post.
+[ ] J3. AI copywriting for social content goes through composeSystemPrompt() / SYSTEM_TONE_REFERENCE_MAP (§27 Part 3) so tone stays consistent with the reference channel for that content type (pidgin_viral / professional_b2b / philosophical_cultural).
+[ ] J4. Vertical video exports (TikTok/Shorts/Stories) use 1080×1920px, keep captions/branding inside the safe-zone bounds specified in §27 Part 6.
+[ ] J5. UTM-tracked ecosystem links (clicksToEcosystem/conversions in SocialAccountMetrics) are used for any cross-product referral tracking — don't hand-roll a second attribution mechanism.
+```
+
 ---
 
 ## 23. Package Audit Checklists
@@ -1755,57 +1792,802 @@ User ──┬─ Wallet ──┬─ WalletLedger
        ├─ AffiliateEarning
        ├─ WebhookSubscription
        └─ MarketplaceListing ── MarketplaceBooking
+
+Workspace ──┬─ BrandKit           (new, §27 Part 4 — Social Media Manager)
+            └─ SocialPost[]
 ```
 
 ---
 
-## 25. Appendix B: Redis Reference Implementation
+## 25. Appendix B: Redis & Queue Reference Implementation
+
+> **v3.1 replacement notice:** the code in this appendix replaces the previous version wholesale. The previous `redis.service.ts` and `queues.ts` were simplified illustrative versions; the files below are the actual hardened implementations, including a documented fix for a real production incident (§17.8) and an expanded, VERIFY-flagged queue registry (§16, §17.7). Do not mix-and-match old and new — copy these files in full.
+
+### 25.0 What changed vs the previous version of this appendix
+
+- **`redis.service.ts`** — completely rewritten. Adds: synchronous client construction in the constructor (fixes the `127.0.0.1:6379` incident, §17.8), Happy-Eyeballs (`family: 0`) + `keepAlive` + `connectTimeout` network resilience, jittered exponential backoff capped at 10s, `reconnectOnError` that distinguishes retryable errors from auth failures, a `whenReady` promise, a full library of typed helper methods for session/cache operations (SSO tokens, refresh-token revocation, OTP storage, rate limiting, feature flags, ALOC/exchange-rate/trend/admin-stats caching), a SCAN-based `scanKeys()` replacing the blocking `keys()`, and a `health()` method backing `GET /health`.
+- **`queues.ts`** — expanded from 15 to 21 queue constants, adds a `JOBS` object grouping job names by domain (not by queue) to prevent name collisions, adds `QUEUE_DEFAULT_JOB_OPTIONS` as the single source of truth for retry/backoff policy (previously scattered inline at each `queue.add()` call site), and flags two queues as **VERIFY** pending confirmation against `notification.service.ts` and `amebogist.service.ts`/`rss.service.ts` (see §16, §17.7).
+
+Both files below are the complete, current contents of their respective paths — copy in full, don't hand-merge with older versions.
+
+### 25.1 `src/database/redis.service.ts` — Complete File
 
 ```typescript
-// src/database/redis.service.ts — COMPLETE FILE
 import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
 
+/**
+ * RedisService — Three-instance split
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SESSION  → SSO relay tokens, JWT refresh family revocation, OTP codes,
+ *            rate-limit counters, feature flags
+ *            env: REDIS_SESSION_URL
+ *
+ * QUEUE    → BullMQ exclusively (passed to BullModule.forRootAsync)
+ *            env: REDIS_QUEUE_URL
+ *
+ * CACHE    → ALOC exam questions, exchange rates, trend data, computed stats
+ *            eviction: allkeys-lru  |  no persistence
+ *            env: REDIS_CACHE_URL
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * INCIDENT FIX (2026-07-15) — clients connecting to 127.0.0.1:6379 instead of
+ * the configured REDIS_*_URL hosts:
+ *
+ *   Root cause: clients were built inside an async `onModuleInit()` using
+ *   `lazyConnect: true` + `await client.connect()`. Nest resolves
+ *   `useFactory` dependency injection (e.g. BullModule.forRootAsync's
+ *   `inject: [RedisService]` → `connection: redis.queue`) while constructing
+ *   the provider graph — BEFORE any `onModuleInit()` lifecycle hook runs
+ *   anywhere in the app. That meant `redis.queue` was still `undefined` at
+ *   the moment BullMQ read it, so ioredis silently fell back to its
+ *   hardcoded default of 127.0.0.1:6379.
+ *
+ *   Fix: build all three clients synchronously in the CONSTRUCTOR, not in
+ *   onModuleInit. Nest always finishes running a provider's constructor
+ *   before that provider can be injected anywhere else, so `session`,
+ *   `queue`, and `cache` are guaranteed to be real Redis instances the
+ *   moment any other factory or service asks for them. Connection itself is
+ *   still async/non-blocking in the background (ioredis default
+ *   `lazyConnect: false` connects immediately without blocking the
+ *   constructor) — BullMQ, session ops, and cache ops all internally queue
+ *   commands until the socket is ready, so this does not stall bootstrap.
+ *
+ *   Retained resilience characteristics from the prior incident fix:
+ *     1. Exponential backoff w/ jitter, capped at 10s, never gives up.
+ *     2. `family: 0` — Happy Eyeballs (IPv4 + IPv6) for Railway/Upstash
+ *        endpoints that intermittently resolve unroutable AAAA records.
+ *     3. `keepAlive: 30_000` — prevents managed-Redis load balancers from
+ *        silently dropping idle sockets (which otherwise surfaces as a
+ *        confusing ECONNRESET on the next command).
+ *     4. `connectTimeout: 10_000` — bounds half-open TCP connects.
+ *     5. `reconnectOnError` distinguishes READONLY/CLUSTERDOWN (retry) from
+ *        NOAUTH/WRONGPASS (surface immediately, do not hot-loop).
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  readonly session: Redis;
-  readonly queue: Redis;
-  readonly cache: Redis;
 
-  constructor(private config: ConfigService) {
-    this.session = this.createClient("REDIS_SESSION_URL", "session");
-    this.queue = this.createClient("REDIS_QUEUE_URL", "queue");
-    this.cache = this.createClient("REDIS_CACHE_URL", "cache");
+  /** Auth, SSO, OTP, rate-limit — persistence: AOF, policy: noeviction */
+  public readonly session: Redis;
+
+  /** BullMQ only — persistence: RDB, policy: noeviction */
+  public readonly queue: Redis;
+
+  /** Short-lived computed data — no persistence, policy: allkeys-lru */
+  public readonly cache: Redis;
+
+  /**
+   * Resolves once all three clients have fired `ready`. Optional — nothing
+   * in the DI graph needs to await this (commands are queued internally by
+   * ioredis until ready), but main.ts can await it before calling
+   * `app.listen()` if you want a hard guarantee before accepting traffic.
+   */
+  public readonly whenReady: Promise<void>;
+
+  constructor(private readonly config: ConfigService) {
+    this.session = this.createClient("REDIS_SESSION_URL", "session", {
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+    });
+
+    this.queue = this.createClient("REDIS_QUEUE_URL", "queue", {
+      // Required by BullMQ — do not change.
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+    });
+
+    this.cache = this.createClient("REDIS_CACHE_URL", "cache", {
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: false,
+    });
+
+    this.whenReady = Promise.all([
+      this.onceReady(this.session, "session"),
+      this.onceReady(this.queue, "queue"),
+      this.onceReady(this.cache, "cache"),
+    ]).then(() => undefined);
   }
 
-  private createClient(envKey: string, label: string): Redis {
-    const url = this.config.getOrThrow<string>(envKey);
+  async onModuleDestroy(): Promise<void> {
+    await Promise.allSettled([
+      this.session?.quit(),
+      this.queue?.quit(),
+      this.cache?.quit(),
+    ]);
+  }
+
+  // ─── Private: client factory ────────────────────────────────────────────────
+
+  private createClient(
+    envKey: string,
+    label: string,
+    options: Record<string, unknown>,
+  ): Redis {
+    let url = this.config.getOrThrow<string>(envKey);
+
+    // Strip CLI-style flags that may have crept into env values, e.g. "-u rediss://..."
+    if (url.includes("-u ")) {
+      url = url.split("-u ")[1].split(" ")[0];
+    }
+    url = url.trim();
+
+    const tlsRequired =
+      url.startsWith("rediss://") || url.includes(".upstash.io");
+
+    let consecutiveFailures = 0;
+
+    // lazyConnect intentionally omitted → defaults to false, so ioredis
+    // starts connecting the instant this client is constructed. Commands
+    // issued before the socket is ready are queued internally by ioredis,
+    // so nothing needs to `await connect()` here.
     const client = new Redis(url, {
-      maxRetriesPerRequest: null, // required by BullMQ
-      lazyConnect: false,
-      reconnectOnError: (err) => {
-        this.logger.error(`Redis [${label}] error: ${err.message}`);
+      ...options,
+      ...(tlsRequired ? { tls: { rejectUnauthorized: false } } : {}),
+
+      // ── Network resilience (fixes the ECONNRESET reconnect storm) ────────
+      family: 0, // Happy Eyeballs — try IPv4 + IPv6, use whichever connects
+      connectTimeout: 10_000, // bound hung half-open connects
+      keepAlive: 30_000, // ping the TCP socket so LBs don't silently drop it
+      noDelay: true,
+
+      // Exponential backoff with jitter, capped at 10s. Never gives up —
+      // BullMQ / session / cache all need eventual reconnection — but never
+      // hot-loops in a way that trips upstream connection-rate limits.
+      retryStrategy: (times: number) => {
+        consecutiveFailures = times;
+        const base = Math.min(times * 200, 10_000);
+        const jitter = Math.floor(Math.random() * 300);
+        const delay = base + jitter;
+
+        if (times % 5 === 0) {
+          this.logger.warn(
+            `Redis [${label}] still reconnecting after ${times} attempts (next retry in ${delay}ms)`,
+          );
+        }
+        return delay;
+      },
+
+      // Only auto-retry the failed command on errors that are genuinely
+      // transient. Auth/permission errors should surface immediately
+      // instead of hot-looping reconnect attempts against bad credentials.
+      reconnectOnError: (err: Error) => {
+        const msg = err.message || "";
+        if (msg.includes("READONLY") || msg.includes("CLUSTERDOWN")) {
+          return true;
+        }
+        if (msg.includes("NOAUTH") || msg.includes("WRONGPASS")) {
+          this.logger.error(
+            `Redis [${label}] auth error — check ${envKey}: ${msg}`,
+          );
+          return false;
+        }
         return true;
       },
     });
-    client.on("connect", () => this.logger.log(`Redis [${label}] connected`));
-    client.on("error", (e) =>
-      this.logger.error(`Redis [${label}] error`, e.message),
-    );
-    client.on("close", () =>
-      this.logger.warn(`Redis [${label}] connection closed`),
-    );
+
+    client.on("connect", () => {
+      this.logger.log(`Redis [${label}] TCP connected`);
+    });
+    client.on("ready", () => {
+      if (consecutiveFailures > 0) {
+        this.logger.log(
+          `Redis [${label}] ready after ${consecutiveFailures} retries — connection recovered`,
+        );
+      } else {
+        this.logger.log(`Redis [${label}] ready`);
+      }
+      consecutiveFailures = 0;
+    });
+    client.on("error", (err) => {
+      // ioredis emits an 'error' event per failed attempt — avoid duplicate
+      // full-stack spam beyond what's useful; message is enough here.
+      this.logger.error(`Redis [${label}] error: ${err.message}`);
+    });
+    client.on("close", () => {
+      this.logger.warn(`Redis [${label}] connection closed`);
+    });
+    client.on("reconnecting", (delay: number) => {
+      this.logger.debug?.(`Redis [${label}] reconnecting in ${delay}ms`);
+    });
+    client.on("end", () => {
+      this.logger.error(
+        `Redis [${label}] connection ended — no more automatic reconnects will occur`,
+      );
+    });
+
     return client;
   }
 
-  onModuleDestroy(): void {
-    this.session.quit();
-    this.queue.quit();
-    this.cache.quit();
+  private onceReady(client: Redis, label: string): Promise<void> {
+    if (client.status === "ready") return Promise.resolve();
+    return new Promise((resolve) => {
+      client.once("ready", () => resolve());
+      // Don't hang bootstrap forever if a single instance never comes up —
+      // log and resolve anyway after 15s; the retryStrategy above keeps
+      // trying in the background regardless.
+      setTimeout(() => {
+        if (client.status !== "ready") {
+          this.logger.warn(
+            `Redis [${label}] not ready after 15s — continuing bootstrap; retries continue in background`,
+          );
+        }
+        resolve();
+      }, 15_000);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SESSION INSTANCE HELPERS
+  // All helpers below use this.session unless the method name says "cache".
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ─── Basic key ops (session) ────────────────────────────────────────────────
+
+  async get(key: string): Promise<string | null> {
+    return this.session.get(key);
+  }
+
+  async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+    if (ttlSeconds) {
+      await this.session.setex(key, ttlSeconds, value);
+    } else {
+      await this.session.set(key, value);
+    }
+  }
+
+  async setex(key: string, ttlSeconds: number, value: string): Promise<void> {
+    await this.session.setex(key, ttlSeconds, value);
+  }
+
+  async del(...keys: string[]): Promise<void> {
+    await this.session.del(...keys);
+  }
+
+  async exists(key: string): Promise<boolean> {
+    return (await this.session.exists(key)) === 1;
+  }
+
+  async incr(key: string): Promise<number> {
+    return this.session.incr(key);
+  }
+
+  async expire(key: string, ttlSeconds: number): Promise<void> {
+    await this.session.expire(key, ttlSeconds);
+  }
+
+  // ─── Hash helpers (session) ─────────────────────────────────────────────────
+
+  async hset(key: string, field: string, value: string): Promise<void> {
+    await this.session.hset(key, field, value);
+  }
+
+  async hget(key: string, field: string): Promise<string | null> {
+    return this.session.hget(key, field);
+  }
+
+  async hgetall(key: string): Promise<Record<string, string>> {
+    return this.session.hgetall(key);
+  }
+
+  /**
+   * SCAN-based key listing — avoids KEYS blocking the event loop on the
+   * shared Redis instance under production load. Prefer this over `keys()`
+   * for anything not run interactively at small scale.
+   */
+  async scanKeys(pattern: string, count = 100): Promise<string[]> {
+    const found: string[] = [];
+    let cursor = "0";
+    do {
+      const [nextCursor, batch] = await this.session.scan(
+        cursor,
+        "MATCH",
+        pattern,
+        "COUNT",
+        count,
+      );
+      cursor = nextCursor;
+      found.push(...batch);
+    } while (cursor !== "0");
+    return found;
+  }
+
+  /** @deprecated Prefer scanKeys() — KEYS blocks the Redis event loop under load. */
+  async keys(pattern: string): Promise<string[]> {
+    return this.session.keys(pattern);
+  }
+
+  // ─── SSO relay tokens (session) ─────────────────────────────────────────────
+  // Key pattern: sso:relay:{64-hex}   TTL: 60s (default)
+
+  async storeSSOToken(
+    token: string,
+    userId: string,
+    ttlSeconds = 60,
+  ): Promise<void> {
+    await this.session.setex(`sso:relay:${token}`, ttlSeconds, userId);
+  }
+
+  async consumeSSOToken(token: string): Promise<string | null> {
+    const key = `sso:relay:${token}`;
+    // Lua script: atomic get-then-delete (prevents double-use)
+    const result = (await this.session.eval(
+      `local v = redis.call("GET", KEYS[1])
+       if v then redis.call("DEL", KEYS[1]) end
+       return v`,
+      1,
+      key,
+    )) as string | null;
+    return result;
+  }
+
+  // ─── JWT refresh token revocation (session) ─────────────────────────────────
+  // Key pattern: revoked:{tokenId}   TTL: 30 days
+
+  async revokeRefreshToken(
+    tokenId: string,
+    ttlSeconds = 60 * 60 * 24 * 30,
+  ): Promise<void> {
+    await this.session.setex(`revoked:${tokenId}`, ttlSeconds, "1");
+  }
+
+  async isRefreshTokenRevoked(tokenId: string): Promise<boolean> {
+    return (await this.session.exists(`revoked:${tokenId}`)) === 1;
+  }
+
+  // ─── OTP storage (session) ──────────────────────────────────────────────────
+  // Key pattern: otp:{purpose}:{email|phone}   TTL: 15 min
+
+  async storeOTP(
+    purpose: string,
+    recipient: string,
+    hashedCode: string,
+    ttlSeconds = 900,
+  ): Promise<void> {
+    await this.session.setex(
+      `otp:${purpose}:${recipient}`,
+      ttlSeconds,
+      hashedCode,
+    );
+  }
+
+  async getOTP(purpose: string, recipient: string): Promise<string | null> {
+    return this.session.get(`otp:${purpose}:${recipient}`);
+  }
+
+  async deleteOTP(purpose: string, recipient: string): Promise<void> {
+    await this.session.del(`otp:${purpose}:${recipient}`);
+  }
+
+  // ─── Rate limiting (session) ────────────────────────────────────────────────
+  // Key pattern: ratelimit:{endpoint}:{userId|ip}
+
+  async checkRateLimit(
+    key: string,
+    limit: number,
+    windowSecs: number,
+  ): Promise<{ allowed: boolean; remaining: number }> {
+    const current = await this.session.incr(key);
+    if (current === 1) {
+      await this.session.expire(key, windowSecs);
+    }
+    return {
+      allowed: current <= limit,
+      remaining: Math.max(0, limit - current),
+    };
+  }
+
+  // ─── Feature flags (session) ────────────────────────────────────────────────
+  // Key pattern: flags:{userId} | flags:global   TTL: 5 min
+
+  async getFeatureFlags(
+    userId: string,
+  ): Promise<Record<string, string> | null> {
+    const data = await this.session.get(`flags:${userId}`);
+    return data ? (JSON.parse(data) as Record<string, string>) : null;
+  }
+
+  async setFeatureFlags(
+    userId: string,
+    flags: Record<string, string>,
+    ttlSeconds = 300,
+  ): Promise<void> {
+    await this.session.setex(
+      `flags:${userId}`,
+      ttlSeconds,
+      JSON.stringify(flags),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CACHE INSTANCE HELPERS
+  // Explicitly namespaced as cacheGet / cacheSet to distinguish from session ops.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async cacheGet(key: string): Promise<string | null> {
+    return this.cache.get(key);
+  }
+
+  async cacheSet(
+    key: string,
+    value: string,
+    ttlSeconds: number,
+  ): Promise<void> {
+    await this.cache.setex(key, ttlSeconds, value);
+  }
+
+  async cacheDel(key: string): Promise<void> {
+    await this.cache.del(key);
+  }
+
+  /**
+   * withCache<T>()
+   * Read-through helper for the CACHE instance.
+   * If key is warm, returns parsed JSON.
+   * On miss, calls fetchFn, stores result, returns it.
+   *
+   * Usage:
+   *   const questions = await redis.withCache(
+   *     `aloc:maths:JAMB:2025`,
+   *     () => alocService.fetchQuestions('maths', 'JAMB', 2025),
+   *     86400,  // 24h
+   *   );
+   */
+  async withCache<T>(
+    key: string,
+    fetchFn: () => Promise<T>,
+    ttlSeconds = 300,
+  ): Promise<T> {
+    const cached = await this.cache.get(key);
+    if (cached) {
+      return JSON.parse(cached) as T;
+    }
+    const data = await fetchFn();
+    await this.cache.setex(key, ttlSeconds, JSON.stringify(data));
+    return data;
+  }
+
+  /**
+   * @deprecated Use withCache() instead.
+   * Kept for backwards compatibility with any existing callers of cache().
+   */
+  async cachet<T>(
+    key: string,
+    fetchFn: () => Promise<T>,
+    ttlSeconds = 300,
+  ): Promise<T> {
+    return this.withCache(key, fetchFn, ttlSeconds);
+  }
+
+  // ─── Named cache-key helpers (ALOC, rates, trends) ─────────────────────────
+
+  /**
+   * ALOC question cache.
+   * Key: aloc:{subject}:{examType}:{year}   TTL: 24h
+   */
+  async getAlocQuestions(
+    subject: string,
+    examType: string,
+    year: number | "all",
+  ): Promise<unknown[] | null> {
+    const raw = await this.cache.get(`aloc:${subject}:${examType}:${year}`);
+    return raw ? (JSON.parse(raw) as unknown[]) : null;
+  }
+
+  async setAlocQuestions(
+    subject: string,
+    examType: string,
+    year: number | "all",
+    questions: unknown[],
+  ): Promise<void> {
+    await this.cache.setex(
+      `aloc:${subject}:${examType}:${year}`,
+      86400,
+      JSON.stringify(questions),
+    );
+  }
+
+  /**
+   * Exchange rate cache.
+   * Key: remit:rates:{currency}   TTL: 1h
+   */
+  async getExchangeRate(currency: string): Promise<unknown | null> {
+    const raw = await this.cache.get(`remit:rates:${currency}`);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  async setExchangeRate(currency: string, data: unknown): Promise<void> {
+    await this.cache.setex(
+      `remit:rates:${currency}`,
+      3600,
+      JSON.stringify(data),
+    );
+  }
+
+  /**
+   * Nigerian trend data cache.
+   * Key: trends:ng:{YYYY-MM-DD}   TTL: 2h
+   */
+  async getTrends(date: string): Promise<unknown | null> {
+    const raw = await this.cache.get(`trends:ng:${date}`);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  async setTrends(date: string, data: unknown): Promise<void> {
+    await this.cache.setex(`trends:ng:${date}`, 7200, JSON.stringify(data));
+  }
+
+  /**
+   * PlanAI tool access map per user.
+   * Key: planai:access:{userId}   TTL: 5 min
+   */
+  async getPlanAIAccess(userId: string): Promise<string[] | null> {
+    const raw = await this.cache.get(`planai:access:${userId}`);
+    return raw ? (JSON.parse(raw) as string[]) : null;
+  }
+
+  async setPlanAIAccess(userId: string, slugs: string[]): Promise<void> {
+    await this.cache.setex(
+      `planai:access:${userId}`,
+      300,
+      JSON.stringify(slugs),
+    );
+  }
+
+  async invalidatePlanAIAccess(userId: string): Promise<void> {
+    await this.cache.del(`planai:access:${userId}`);
+  }
+
+  /**
+   * Admin dashboard stats.
+   * Key: admin:stats:{YYYY-MM-DD}   TTL: 15 min
+   */
+  async getAdminStats(date: string): Promise<unknown | null> {
+    const raw = await this.cache.get(`admin:stats:${date}`);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  async setAdminStats(date: string, data: unknown): Promise<void> {
+    await this.cache.setex(`admin:stats:${date}`, 900, JSON.stringify(data));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HEALTH CHECK
+  // Used by GET /health (admin.module.ts health.controller.ts)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async health(): Promise<{
+    session: "up" | "down";
+    queue: "up" | "down";
+    cache: "up" | "down";
+  }> {
+    const ping = async (client: Redis): Promise<"up" | "down"> => {
+      try {
+        const pong = await client.ping();
+        return pong === "PONG" ? "up" : "down";
+      } catch {
+        return "down";
+      }
+    };
+
+    const [session, queue, cache] = await Promise.all([
+      ping(this.session),
+      ping(this.queue),
+      ping(this.cache),
+    ]);
+
+    return { session, queue, cache };
   }
 }
+```
+
+### 25.2 `src/common/constants/queues.ts` — Complete File
+
+```typescript
+// src/common/constants/queues.ts
+//
+// SINGLE SOURCE OF TRUTH for every BullMQ queue + job name in boldmind-service.
+// Nothing outside this file should contain a literal queue-name or job-name string.
+//
+//   Registration (once, app-wide):  src/common/queues/queues.module.ts
+//   Producers:   @InjectQueue(QUEUES.X)  →  queue.add(JOBS.GROUP.Y, payload)
+//   Consumers:   @Processor(QUEUES.X)    →  switch (job.name) { case JOBS.GROUP.Y: ... }
+//
+// Retry/backoff policy is defined ONCE here (QUEUE_DEFAULT_JOB_OPTIONS) and applied
+// at registration time. Producers should NOT pass { attempts, backoff } inline —
+// that duplication is exactly what caused queue-name drift in the first place.
+
+import type { JobsOptions } from "bullmq";
+
+export const QUEUES = {
+  // ── Communication ──────────────────────────────────────────────
+  EMAIL_NOTIFICATIONS: "email-notifications",
+  MARKETING_AUTOMATION: "marketing-automation",
+  PUSH_NOTIFICATIONS: "push-notifications",
+  SMS_OTP: "sms-otp",
+  NOTIFICATIONS_DISPATCH: "notifications", // VERIFY: notification.module.ts — flagged in project notes as
+  // previously unregistered/no-consumer. May be fully redundant
+  // with EMAIL_NOTIFICATIONS/PUSH_NOTIFICATIONS/SMS_OTP above —
+  // need notification.service.ts to confirm before deciding
+  // keep-vs-delete.
+
+  // ── Content & Social ───────────────────────────────────────────
+  SOCIAL_PUBLISHING: "social-publishing",
+  AI_GENERATION: "ai-generation",
+  IMAGE_GENERATION: "image-generation",
+  SOCIAL_FACTORY: "social-factory",
+  VIDEO_RENDER: "video-render",
+  CONTENT_SEO: "content-seo",
+  CONTENT_PROCESSING: "content", // VERIFY: amebogist.module.ts — used by rss.service.ts/amebogist.service.ts?
+  // No @Processor class currently visible consuming this. Need those two
+  // files to confirm job names/purpose before finalizing JOBS group + defaults.
+
+  // ── Business Operations ────────────────────────────────────────
+  PAYROLL_PROCESSING: "payroll-processing",
+  MEDIA_PROCESSING: "media-processing",
+  AI_AGENT_TASKS: "ai-agent-tasks",
+
+  // ── Payments & Wallet ──────────────────────────────────────────
+  PAYMENT_WEBHOOK: "payment-webhook",
+  WALLET_CREDIT: "wallet-credit",
+
+  // ── Background Intelligence ────────────────────────────────────
+  TREND_ANALYSIS: "trend-analysis",
+  KOLO_REMINDERS: "kolo-reminders",
+
+  // ── Enterprise & Extensions ────────────────────────────────────
+  POLYMIND_QUERY: "polymind-query",
+  WEBHOOK_DELIVERY: "webhook-delivery",
+
+  // ── Data Hygiene ───────────────────────────────────────────────
+  NDPA_ERASURE: "ndpa-erasure",
+  SEO_SITEMAP: "seo-sitemap",
+} as const;
+
+export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
+
+// ── Job names, grouped by DOMAIN rather than by queue, so a copy-paste across
+//    queues can never silently collide on the same constant. ──────────────────
+export const JOBS = {
+  EMAIL: {
+    SEND_BATCH: "send-batch", // EmailCampaignProcessor
+    EXPIRY_REMINDER: "expiry-reminder", // EmailCampaignProcessor
+    BROADCAST: "broadcast-email", // NotificationService → EmailCampaignProcessor
+  },
+  PUSH: {
+    BROADCAST: "broadcast-push", // NotificationService → PushBroadcastProcessor
+  },
+  SOCIAL: {
+    POST: "post", // SocialPostProcessor
+  },
+  AI: {
+    EMAIL_SCRAPE: "email-scrape", // AIJobsProcessor (Business Discovery Directory)
+  },
+  AGENT: {
+    TASK: "agent-task", // BizAgentTaskProcessor — taskType lives in job.data, not job.name
+  },
+} as const;
+
+export const QUEUE_PRIORITIES: Record<QueueName, number> = {
+  [QUEUES.PAYMENT_WEBHOOK]: 1, // Critical — never delay Paystack
+  [QUEUES.WALLET_CREDIT]: 2, // High — financial integrity
+  [QUEUES.SMS_OTP]: 2, // High — user is waiting
+  [QUEUES.PAYROLL_PROCESSING]: 3, // High — time-sensitive
+  [QUEUES.AI_AGENT_TASKS]: 4, // High-ish — agent tasks are time-sensitive (invoice followups, bookings)
+  [QUEUES.MARKETING_AUTOMATION]: 5, // Normal
+  // QUEUE_PRIORITIES — add:
+  [QUEUES.NOTIFICATIONS_DISPATCH]: 5, // VERIFY
+  [QUEUES.CONTENT_PROCESSING]: 6, // VERIFY
+
+  [QUEUES.EMAIL_NOTIFICATIONS]: 5, // Normal
+  [QUEUES.PUSH_NOTIFICATIONS]: 5, // Normal
+  [QUEUES.SOCIAL_PUBLISHING]: 5, // Normal (may be delayed jobs)
+  [QUEUES.AI_GENERATION]: 5, // Normal
+  [QUEUES.IMAGE_GENERATION]: 5, // Normal
+  [QUEUES.SOCIAL_FACTORY]: 5, // Normal — VERIFY against social-factory.processor.ts intent
+  [QUEUES.VIDEO_RENDER]: 5, // Normal — VERIFY
+  [QUEUES.CONTENT_SEO]: 7, // Low-ish — VERIFY
+  [QUEUES.MEDIA_PROCESSING]: 5, // Normal
+  [QUEUES.KOLO_REMINDERS]: 5, // Normal
+  [QUEUES.POLYMIND_QUERY]: 5, // Normal
+  [QUEUES.WEBHOOK_DELIVERY]: 5, // Normal
+  [QUEUES.TREND_ANALYSIS]: 8, // Low
+  [QUEUES.SEO_SITEMAP]: 9, // Low
+  [QUEUES.NDPA_ERASURE]: 9, // Low
+};
+
+// ── Default BullMQ retry/backoff policy per queue. Applied once at registration
+//    time in QueuesModule. `attempts: 1` == "no retries" (the first try counts).
+export const QUEUE_DEFAULT_JOB_OPTIONS: Record<QueueName, JobsOptions> = {
+  [QUEUES.PAYMENT_WEBHOOK]: {
+    attempts: 5,
+    backoff: { type: "fixed", delay: 10_000 },
+  },
+  [QUEUES.WALLET_CREDIT]: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 2_000 },
+  },
+  [QUEUES.SMS_OTP]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 3_000 },
+  },
+  [QUEUES.PAYROLL_PROCESSING]: { attempts: 1 },
+  [QUEUES.AI_AGENT_TASKS]: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5_000 },
+  },
+  [QUEUES.MARKETING_AUTOMATION]: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5_000 },
+  },
+  [QUEUES.EMAIL_NOTIFICATIONS]: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5_000 },
+  },
+  [QUEUES.PUSH_NOTIFICATIONS]: {
+    attempts: 2,
+    backoff: { type: "fixed", delay: 5_000 },
+  },
+  [QUEUES.SOCIAL_PUBLISHING]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 5_000 },
+  },
+  [QUEUES.AI_GENERATION]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 4_000 },
+  },
+  // QUEUE_DEFAULT_JOB_OPTIONS — add:
+  [QUEUES.NOTIFICATIONS_DISPATCH]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 3_000 },
+  }, // VERIFY
+  [QUEUES.CONTENT_PROCESSING]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 5_000 },
+  }, // VERIFY
+  [QUEUES.IMAGE_GENERATION]: { attempts: 1 },
+  [QUEUES.SOCIAL_FACTORY]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 4_000 },
+  }, // VERIFY
+  [QUEUES.VIDEO_RENDER]: { attempts: 1 }, // VERIFY
+  [QUEUES.CONTENT_SEO]: { attempts: 1 }, // VERIFY
+  [QUEUES.MEDIA_PROCESSING]: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 3_000 },
+  },
+  [QUEUES.TREND_ANALYSIS]: { attempts: 1 },
+  [QUEUES.KOLO_REMINDERS]: { attempts: 1 },
+  [QUEUES.POLYMIND_QUERY]: { attempts: 1 },
+  [QUEUES.WEBHOOK_DELIVERY]: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 4_000 },
+  },
+  [QUEUES.NDPA_ERASURE]: { attempts: 1 },
+  [QUEUES.SEO_SITEMAP]: { attempts: 1 },
+};
 ```
 
 ```typescript
@@ -1822,46 +2604,6 @@ BullModule.forRootAsync({
 }),
 ```
 
-```typescript
-// src/common/constants/queues.ts — FULL FILE
-export const QUEUES = {
-  EMAIL_NOTIFICATIONS: "email-notifications",
-  SMS_OTP: "sms-otp",
-  SOCIAL_PUBLISHING: "social-publishing",
-  AI_GENERATION: "ai-generation",
-  IMAGE_GENERATION: "image-generation",
-  PAYROLL_PROCESSING: "payroll-processing",
-  MEDIA_PROCESSING: "media-processing",
-  PAYMENT_WEBHOOK: "payment-webhook",
-  WALLET_CREDIT: "wallet-credit",
-  TREND_ANALYSIS: "trend-analysis",
-  KOLO_REMINDERS: "kolo-reminders",
-  POLYMIND_QUERY: "polymind-query",
-  WEBHOOK_DELIVERY: "webhook-delivery",
-  NDPA_ERASURE: "ndpa-erasure",
-  SEO_SITEMAP: "seo-sitemap",
-} as const;
-export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
-
-export const QUEUE_PRIORITIES: Record<QueueName, number> = {
-  [QUEUES.PAYMENT_WEBHOOK]: 1,
-  [QUEUES.WALLET_CREDIT]: 2,
-  [QUEUES.SMS_OTP]: 2,
-  [QUEUES.PAYROLL_PROCESSING]: 3,
-  [QUEUES.EMAIL_NOTIFICATIONS]: 5,
-  [QUEUES.SOCIAL_PUBLISHING]: 5,
-  [QUEUES.AI_GENERATION]: 5,
-  [QUEUES.IMAGE_GENERATION]: 5,
-  [QUEUES.MEDIA_PROCESSING]: 5,
-  [QUEUES.KOLO_REMINDERS]: 5,
-  [QUEUES.POLYMIND_QUERY]: 5,
-  [QUEUES.WEBHOOK_DELIVERY]: 5,
-  [QUEUES.TREND_ANALYSIS]: 8,
-  [QUEUES.SEO_SITEMAP]: 9,
-  [QUEUES.NDPA_ERASURE]: 9,
-};
-```
-
 ---
 
 ## 26. Appendix C: Individual App Onboarding
@@ -1870,7 +2612,575 @@ Per-repo startup instructions — see each repo's own README and project-tree do
 
 ---
 
-_BoldmindNG Master Design v3.0 (Unified) | July 2026_
+## 27. Social Media Management & Branding Architecture
+
+> **Added in v3.1.** Source: `Strategic Social Media Management and Branding Architecture for BoldmindNG`. This section is the operational playbook for running BoldmindNG's social presence — account setup, brand asset specs, content pillars per channel, the frontend styling engine those assets are rendered with, the Social Media Manager app's brand-kit + AI tone system, the automation pipeline and Prisma schema behind scheduled posts, and a standalone caption/hashtag/ad-copy playbook. It complements — doesn't replace — the product-level PlanAI Social Media Manager reference in §6 (live routes) and §16 (queue map: `social-publishing`, `social-factory`, `marketing-automation`). New build work implied by this section is tracked as **Wave 7** (§21) and **Checklist J** (§22).
+>
+> **Editorial note:** a handful of code snippets in the source document have incomplete array literals (e.g. `mediaUrls String` missing `[]`, several `interests:` / hashtag-set values left empty). These are reproduced as received below; treat them as illustrative structure, not copy-paste-ready code — fill in the missing array contents/types before shipping.
+
+### 27.1 Overview — The Four-Pillar Flywheel
+
+BoldmindNG's social strategy routes people sequentially through four pillars: **Awareness** (AmeboGist — high-volume Pidgin-language media), **Conviction** (VillageCircle — story-driven cultural/philosophical drops that validate product concepts before they're built), **Education** (Boldmind EduCenter — exam prep and vocational skill programs), and **Enablement** (BoldmindNG hub / PlanAI — SSO-gated SaaS tools). Every channel is expected to funnel its audience toward the next pillar rather than operate in isolation.
+
+```text
++--------------------------------------------------+
+|                    AMEBOGIST                     |
+|               (Awareness Layer)                  |
+|     High-volume news and viral trends in Pidgin  |
++------------------------+-------------------------+
+                         |  Users engage with news
+                         v
++--------------------------------------------------+
+|                  VILLAGECIRCLE                   |
+|               (Conviction Layer)                 |
+|   Culturally resonant drops and product concepts |
++------------------------+-------------------------+
+                         |  Conceptual buy-in achieved
+                         v
++--------------------------------------------------+
+|                    EDUCENTER                     |
+|               (Education Layer)                  |
+|     Exam preparation and vocational training     |
++------------------------+-------------------------+
+                         |  Ready to build/operate
+                         v
++--------------------------------------------------+
+|                  BOLDMIND / PLANAI               |
+|               (Enablement Layer)                 |
+|     SSO platform, business SaaS, unified billing |
++--------------------------------------------------+
+```
+
+### 27.2 Part 1 — Account Setup & Branding Guide
+
+**Account inventory (handles pending platform verification):**
+
+| Product            | Platforms                                                | Handles                                                                                                                  |
+| ------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| BoldmindNG         | TikTok, Twitter/X, LinkedIn, YouTube, Facebook, WhatsApp | `@boldmindng` (TikTok/X/YouTube), `/company/boldmindng` (LinkedIn), `boldmindng1` (Facebook), `2349138349271` (WhatsApp) |
+| PlanAI             | TikTok, Twitter/X, Facebook, LinkedIn, WhatsApp          | `@planaibyboldmind` (TikTok/Facebook), `@planaibyboldmin` (X), `/company/planaibyboldmind` (LinkedIn)                    |
+| AmeboGist          | TikTok, Twitter/X, Facebook, YouTube, WhatsApp           | `@amebogistng` (TikTok/X/YouTube), `amebogistng1` (Facebook)                                                             |
+| Boldmind EduCenter | TikTok, Facebook, YouTube, WhatsApp                      | `@boldmindeducenter` (TikTok/YouTube/Facebook)                                                                           |
+| VillageCircle      | YouTube, TikTok, Twitter/X, Facebook                     | `@villagecircleng1` (YouTube), `@villagecircleng` (TikTok/X), `villagecircleng1` (Facebook)                              |
+
+All handles/statuses are marked `[confirm]` in the source inventory — verify current registration state before publishing under any of them.
+
+**Bio templates per platform** are pre-written for all five public-facing brands (BoldmindNG master account, PlanAI, AmeboGist, Boldmind EduCenter, VillageCircle) at Twitter/X, Instagram, TikTok, LinkedIn-description, and YouTube-description lengths, each with product-specific links and character counts respected. See the source doc for full copy per platform — the pattern is consistent: a short punchy line + ecosystem tag + link for short formats, a fuller value-proposition paragraph for LinkedIn, and a channel description with a fixed weekly posting cadence for YouTube.
+
+**Profile asset specs** — every product has a fixed dimension/format/color spec per asset type:
+
+| Asset Type         | Dimensions  | Format |
+| ------------------ | ----------- | ------ |
+| Profile picture    | 1080×1080px | PNG    |
+| Twitter header     | 1500×500px  | PNG    |
+| Facebook cover     | 851×315px   | JPG    |
+| LinkedIn banner    | 1128×191px  | PNG    |
+| YouTube art        | 2560×1440px | JPG    |
+| IG highlight cover | 1080×1920px | PNG    |
+
+Brand primary/secondary hex pairs per product:
+
+| Product            | Primary   | Secondary |
+| ------------------ | --------- | --------- |
+| BoldmindNG         | `#2B4D87` | `#E9A825` |
+| PlanAI             | `#5B21B6` | `#059669` |
+| AmeboGist          | `#065F46` | `#DC2626` |
+| Boldmind EduCenter | `#1E40AF` | `#F59E0B` |
+| VillageCircle      | `#3B1F0A` | `#E9A825` |
+
+**Mandatory visual structure for every generated brand asset:**
+
+1. **Background** — programmatic linear gradient, primary → secondary, 45° diagonal (prevents visual flatness).
+2. **Logo/icon** — centered, 40% of container, white with clean alpha masking.
+3. **Product name** — bottom-left, white, Plus Jakarta Sans Bold.
+4. **Tagline/value prop** — bottom-right, smaller/lighter weight, 70% opacity.
+
+This structure is enforced in code — see §27.4's reusable card components and Checklist J1 (§22).
+
+**Content pillars per account** (full breakdown of strategic focus, content-mix percentages, and posting cadence per platform) exist for all five channels:
+
+- **`@boldmindng`** (master): 40% ecosystem announcements, 20% founder journey, 20% Nigerian entrepreneur education, 20% cross-product spotlight. TikTok 2×/day, Twitter/X 1×/day thread, LinkedIn 3×/week.
+- **`@amebogistng`**: 60% news posts, 20% Pidgin explainers, 20% community engagement. Twitter/X 4–6×/day, TikTok 2×/day.
+- **`@planaibyboldmind`**: 30% product demos, 30% SME tips, 20% before/after case studies, 20% testimonials. TikTok 2×/day, Instagram 1×/day carousel, LinkedIn 3×/week case studies.
+- **`@boldmindeducenter`**: 40% study tips, 30% exam countdowns, 20% student success stories, 10% product features. Twitter/X 3×/day drills, TikTok 1×/day.
+- **`@villagecircleng`**: 80% daily philosophical drops, 20% behind-the-philosophy (product concept explainers). Cross-platform 1×/day at 08:30 Africa/Lagos.
+
+### 27.3 Part 2 — Technical Frontend Integration & Styling Rules
+
+Brand theming for social-facing web components (dashboards, automated preview cards) is generated programmatically from the product color config, not hand-coded per product.
+
+```typescript
+// Programmatic generation of CSS Variables using the product color configurations
+export function generateCSSVariables(scheme: ProductColorScheme): string {
+  return `
+    --product-primary: ${scheme.primary};
+    --product-secondary: ${scheme.secondary};
+    --product-accent: ${scheme.accent};
+    --product-background: ${scheme.background};
+    --product-foreground: ${scheme.foreground};
+    --product-muted: ${scheme.muted};
+    --product-highlight: ${hexToRgba(scheme.secondary, 0.12)};
+    --product-glow: ${hexToRgba(scheme.secondary, 0.25)};
+  `.trim();
+}
+
+// Helper utility to calculate high-contrast text color on brand backgrounds
+export function getContrastColor(hexColor: string): string {
+  const hex = hexColor.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#1A202C" : "#FAFAF9";
+}
+```
+
+**Font/accessibility engine** — defaults to `OpenDyslexic` across operational products (Hub, PlanAI, EduCenter, fitness, project-manager) for neurodiverse readability on business data and exam questions; VillageCircle deliberately overrides to `Playfair Display`/`Lora` serif for its story-driven register.
+
+```typescript
+export const BOLDMIND_FONT_CONFIG = {
+  default: 'OpenDyslexic, "Comic Sans MS", sans-serif',
+  heading: 'OpenDyslexic, "Plus Jakarta Sans", "Inter", sans-serif',
+  mono: '"JetBrains Mono", "Fira Code", monospace',
+  overrides: {
+    amebogist: 'OpenDyslexic, "Plus Jakarta Sans", sans-serif',
+    educenter: 'OpenDyslexic, "Inter", sans-serif',
+    "project-manager": "OpenDyslexic, sans-serif",
+    "boldmind-fitness": 'OpenDyslexic, "Inter", sans-serif',
+    "boldmind-hub": 'OpenDyslexic, "Plus Jakarta Sans", sans-serif',
+    villagecircle: '"Playfair Display", "Lora", Georgia, serif',
+  } as Record<string, string>,
+  cssVariable: "--font-body",
+  dyslexiaSpacing: {
+    letterSpacing: "0.12em",
+    wordSpacing: "0.25em",
+    lineHeight: "1.8",
+  },
+} as const;
+
+export function generateFontCSS(slug: string): string {
+  const font =
+    BOLDMIND_FONT_CONFIG.overrides[slug] ?? BOLDMIND_FONT_CONFIG.default;
+  return `
+    :root {
+      ${BOLDMIND_FONT_CONFIG.cssVariable}: ${font};
+    }
+    body, * {
+      font-family: var(${BOLDMIND_FONT_CONFIG.cssVariable});
+    }
+  `.trim();
+}
+```
+
+**Reusable social post card components** — standard HTML/CSS markup for automated preview cards exists for both the operational (Boldmind Hub) and media (AmeboGist) registers; both follow the §27.2 mandatory visual structure (gradient background, centered icon, bottom-left product name, bottom-right ecosystem tag). Full markup is preserved in the source doc — reuse these templates rather than building new card layouts from scratch when adding a new automated card type; extend them rather than forking.
+
+### 27.4 Part 3 — Social Media Manager App Integration (PlanAI `prod_101`)
+
+The user-facing Social Media Manager exposes a per-workspace branding + AI-tone system so independent subscribers get on-brand, on-tone generated content without manual styling per post.
+
+**`BrandKit` per workspace:**
+
+```typescript
+interface BrandKit {
+  workspaceId: string;
+  // Colors
+  primaryColor: string; // hex
+  secondaryColor: string;
+  accentColor: string;
+  // Typography
+  headingFont: string; // Google Fonts name
+  bodyFont: string;
+  // Logos
+  logoUrl: string; // Cloudflare R2 URL
+  logoWhiteUrl: string;
+  faviconUrl: string;
+  // Social profile photos
+  profilePhotoUrl: string;
+  // Voice
+  brandVoice:
+    | "professional"
+    | "casual"
+    | "pidgin"
+    | "youthful"
+    | "authoritative";
+  industry: string;
+  targetAudience: string;
+  // Auto-applied to all AI-generated content for this workspace
+}
+```
+
+**Tone reference system** — rather than a generic style guide, the AI copywriting engine is prompted with BoldmindNG's own live channels as reference voices, selected by content type:
+
+```typescript
+// System Reference configuration map for dynamic LLM prompt orchestration
+export const SYSTEM_TONE_REFERENCE_MAP = {
+  pidgin_viral: {
+    handle: "@amebogistng",
+    referenceContext: "AmeboGist NG Pidgin Media Voice",
+    coreDirectives: [], // fill in: short, punchy, street-Pidgin hooks
+    prohibitions: [], // fill in: e.g. no overly formal register
+  },
+  professional_b2b: {
+    handle: "@planaibyboldmind",
+    referenceContext: "PlanAI SaaS Enterprise B2B Voice",
+    coreDirectives: [], // fill in: ROI-first, feature-benefit framing
+    prohibitions: [], // fill in
+  },
+  philosophical_cultural: {
+    handle: "@villagecircle",
+    referenceContext: "VillageCircle Philosophy and Story Voice",
+    coreDirectives: [], // fill in: dignified, story-first, 5 Rivers framing
+    prohibitions: [
+      "Avoid hype words, business buzzwords, and immediate promotional calls-to-action.",
+      "Never use casual abbreviations.",
+    ],
+  },
+} as const;
+
+// Backend helper function to inject reference parameters into the LLM system prompt
+export function composeSystemPrompt(
+  workspaceVoice: string,
+  contentType: "viral" | "b2b" | "philosophical",
+): string {
+  let referencePreset = SYSTEM_TONE_REFERENCE_MAP.professional_b2b;
+
+  if (contentType === "viral" || workspaceVoice === "pidgin") {
+    referencePreset = SYSTEM_TONE_REFERENCE_MAP.pidgin_viral;
+  } else if (contentType === "philosophical") {
+    referencePreset = SYSTEM_TONE_REFERENCE_MAP.philosophical_cultural;
+  }
+
+  return `
+    You are an elite copywriter operating within the BoldmindNG PlanAI suite.
+    Your goal is to generate social media content tailored to the Nigerian market.
+
+    Tone Guide: Apply the following directives which emulate the exact communication strategy of our master reference channel, ${referencePreset.handle}:
+    ${referencePreset.coreDirectives.map((directive) => `- ${directive}`).join("\n")}
+
+    Prohibitions:
+    ${referencePreset.prohibitions.map((p) => `- ${p}`).join("\n")}
+  `.trim();
+}
+```
+
+> **Note:** `coreDirectives` arrays are empty placeholders in the source document — populate them with the actual per-channel voice rules (drawn from §27.2's content-pillar descriptions) before wiring `composeSystemPrompt()` into `ai.service.ts` (tracked in Wave 7, §21).
+
+**Auto-branding on generated images** (fal.ai/FLUX outputs), applied via an HTML5 canvas post-processor:
+
+- Programmatic brand border/tint — 2px frame or gradient boundary tinted with the workspace's `primaryColor`.
+- Workspace logo watermark — bottom-right, opacity adjustable 15%–100%.
+- Dynamic typography overlays — headline/quote text styled with the workspace's `headingFont`/`bodyFont`.
+
+**Analytics — cross-platform + ecosystem-referral tracking:**
+
+```typescript
+interface SocialAccountMetrics {
+  platform: string;
+  handle: string;
+  // Growth
+  followersToday: number;
+  followersGrowth7d: number;
+  followersGrowth30d: number;
+  // Engagement
+  avgEngagementRate: number;
+  topPost: { url: string; engagement: number; postedAt: Date };
+  bestPostingTime: { dayOfWeek: string; hour: number };
+  // BoldmindNG flywheel
+  clicksToEcosystem: number; // UTM-tracked clicks to any boldmind domain
+  conversions: number; // UTM clicks that resulted in signup
+}
+```
+
+`clicksToEcosystem`/`conversions` is the standard attribution mechanism for measuring how a subscriber's own social output feeds the wider ecosystem flywheel — see Checklist J5 (§22): don't build a second, parallel tracking mechanism for this.
+
+### 27.5 Part 4 — Content Automation Architecture & Prisma Schema
+
+**Pipeline:**
+
+```text
++-------------------+     Creates     +--------------------+     Queues     +------------------+
+|    PlanAI OS /    | --------------> |   Workspace-Level  | --------------> |  BullMQ / Redis  |
+|   Workspace UI    |                 |  Social Generator  |                 |  Message Broker  |
++-------------------+                 +--------------------+                 +------------------+
+                                                                                      |
+                                                                                      | Triggers
+                                                                                      v
++-------------------+     Delivers    +--------------------+     Processes   +------------------+
+|   Social Media    | <-------------- |    n8n Workflow    | <-------------- |  Background Job  |
+|   Platform APIs   |                 |     Integrator     |                 |  Worker Thread   |
++-------------------+                 +--------------------+                 +------------------+
+```
+
+This pipeline is the intended consumer of the `social-publishing`, `social-factory`, and `marketing-automation` queues documented in §16 — wire new work through those queues rather than adding new ad-hoc ones (check §17.7's VERIFY items first in case one of the flagged queues is actually meant for this).
+
+**Prisma schema (new models — add via migration, don't hand-edit the DB):**
+
+```prisma
+// Prisma Schema Definition for Ecosystem Social Media Management
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workspace {
+  id           String        @id @default(uuid())
+  name         String
+  brandKit     BrandKit?
+  socialPosts  SocialPost[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model BrandKit {
+  id               String    @id @default(uuid())
+  workspaceId      String    @unique
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  primaryColor     String    @default("#2B4D87")
+  secondaryColor   String    @default("#E9A825")
+  accentColor      String    @default("#5B8ADE")
+  headingFont      String    @default("Plus Jakarta Sans")
+  bodyFont         String    @default("Inter")
+  logoUrl          String
+  logoWhiteUrl     String
+  faviconUrl       String
+  profilePhotoUrl  String
+  brandVoice       String    @default("professional")
+  industry         String
+  targetAudience   String
+}
+
+model SocialPost {
+  id          String       @id @default(uuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  productSlug String       // References ProductColorScheme slug (e.g., "planai")
+  contentText String       @db.VarChar(2000)
+  mediaUrls   String[]     // Array of programmatic visual asset paths
+  scheduledAt DateTime
+  publishedAt DateTime?
+  status      PostStatus   @default(QUEUED)
+  targets     Platform[]   // Targeted platforms
+  errorLog    String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([scheduledAt, status])
+}
+
+enum PostStatus {
+  QUEUED
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
+
+enum Platform {
+  TWITTER
+  INSTAGRAM
+  TIKTOK
+  LINKEDIN
+  FACEBOOK
+}
+```
+
+> Fixed from the source doc: `mediaUrls String` → `mediaUrls String[]` and `targets Platform` → `targets Platform[]` (both were plain scalars in the original, which doesn't match their stated purpose as arrays). Confirm against the actual migration before assuming this fix is already applied in the DB.
+
+Add the corresponding relations to the ER diagram in §24 (already updated above): `Workspace ── BrandKit`, `Workspace ── SocialPost[]`.
+
+### 27.6 Part 5 — Standalone Social Media Playbook
+
+**Weekly content calendar template** (applies per subscriber workspace, not just BoldmindNG's own channels):
+
+| Day       | Focus                     | Platforms                                |
+| --------- | ------------------------- | ---------------------------------------- |
+| Monday    | Motivation / inspiration  | All                                      |
+| Tuesday   | Product feature highlight | TikTok, Instagram Reels                  |
+| Wednesday | Educational content       | Twitter/X threads, LinkedIn articles     |
+| Thursday  | Localized business tips   | All                                      |
+| Friday    | Community & engagement    | Interactive stories, polls               |
+| Saturday  | Behind the scenes         | TikTok, Stories                          |
+| Sunday    | Week recap & preview      | Newsletter, cross-platform recap graphic |
+
+**Caption formula library** — 20 named, reusable templates tuned for West African audiences (mixing English and Pidgin framing), including: The Story Hook, The Pidgin Opener, The Stats Flex, The Question Loop, The "No Shaking" Guarantee, The "Sapa" Solver, The Behind-the-Scenes Build, The "Hustle Go Pay" Motivation, The Hard Truth/Unpopular Opinion, The "Wetin Dey Occur" Trend Jack, The "Na Godwin" Milestone, The Step-by-Step Blueprint, The "E Choke" Feature Drop, The Before vs After Split, The Client Receipt/Testimonial Flex, The "No Be Today" Authority Build, The FOMO Warning, The Pidgin Explainer, The "Japa" Alternative, and The Interactive Choice Poll. Each has a fill-in-the-blank template with `[bracketed]` placeholders for product name, benefit, link, etc. — see the source document for the full copy of each; reuse these verbatim as starting points rather than freehand-writing new hook structures for every post.
+
+**Hashtag strategy by platform** (max-count discipline per platform, since exceeding it tanks discoverability):
+
+| Platform  | Max hashtags | Example                                                                                                                           |
+| --------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| TikTok    | 5            | `#NaijaSME #PlanAI #NigerianEntrepreneur #BusinessOS #NaijaBusiness`                                                              |
+| Instagram | 10           | `#MadeInNigeria #LagosLife #NaijaBusiness #TechNaija #ContentCreator #DigitalNaija #NaijaSME #PlanAI #NigerianTech #NaijaCreator` |
+| Twitter/X | 3            | `#TechNaija #NigerianStartup #BoldmindNG`                                                                                         |
+| LinkedIn  | 5            | `#NigerianTech #AfricanBusiness #SME #BusinessOS #PlanAI`                                                                         |
+
+> The source `HASHTAG_SETS` object (`nigeria_business`, `tech`, `education`, `creator`, `planai`, `villagecircle`) was left with empty array values in the original — populate each set from the example hashtag lists above and the content-pillar language in §27.2 before wiring it into the caption generator.
+
+### 27.7 Part 6 — Multimedia Strategy: Podcasts, YouTube Shorts & Stories
+
+**VillageCircle Speculative Concept Explorer** — an interactive React map where speculative products (KoloAI, NaijaRent, SAFE AI, NaijaPrice Watch, etc.) are rendered as connected nodes:
+
+```typescript
+interface ConceptNode {
+  id: string;
+  title: string;
+  icon: string;
+  pillar: "awareness" | "conviction" | "education" | "enablement";
+  fiveRiversTag:
+    | "religion-culture"
+    | "history"
+    | "economic-liberation"
+    | "tech-leap"
+    | "governance";
+  status: "CONCEPT" | "BUILDING" | "LIVE";
+  narrativeUrl: string; // Links to deep-dive essay drop
+  waitlistCount: number;
+}
+```
+
+Clicking a node opens a side panel with an audio player reading the concept's deep-dive essay (Pidgin or dignified English) — the goal is ideological buy-in that drives waitlist signups ahead of the product actually being built (this is the concrete mechanism behind VillageCircle's "Conviction" role in the flywheel, §27.1).
+
+**Two-podcast network:**
+
+```text
++--------------------------------------------------+
+|              "WETIN DEY OCCUR" PODCAST           |
+|                (Top-of-Funnel News)              |
+|   Target Audience: Broad consumer & creators     |
+|   Style: Conversational, rapid-fire street Pidgin |
++------------------------+-------------------------+
+                         | Leads to EduCenter / PlanAI
+                         v
++--------------------------------------------------+
+|              "CIRCLE TALK" PODCAST               |
+|             (Conviction & Philosophy)            |
+|   Target Audience: Builders, innovators, founders |
+|   Style: Calming, deep, dignified, story-driven |
++--------------------------------------------------+
+```
+
+- **"Wetin Dey Occur"** (AmeboGist voice) — weekly 15-min news/creator-hack summary, street Pidgin, CTAs point to EduCenter.
+- **"Circle Talk"** (VillageCircle voice) — deep 5 Rivers / economic-history / speculative-product discussions, dignified English, CTAs point to Explore-map waitlists.
+
+**Vertical video specs (YouTube Shorts / TikTok / Stories):**
+
+- Dimensions: 1080×1920px (9:16), 30–60 FPS, MP4/H.264+AAC, 4,000–6,000 kbps target bitrate.
+- **YouTube Shorts safe zone:** keep critical graphics/subtitles/faces inside the central 900×1160px region; avoid the top 380px (search/title overlay) and bottom 380px (subscribe button/description).
+- **TikTok safe zone:** keep critical text inside the central 70% horizontally/vertically; avoid the right 150px (like/comment buttons) and bottom 300px (caption area).
+
+See Checklist J4 (§22).
+
+### 27.8 Part 7 — Programmatic Ad Copy Generation & Distribution
+
+The PlanAI Ads Center (`prod_102`) auto-generates platform-compliant ad copy per funnel stage, targeting Nigerian LGA-level demographics:
+
+```typescript
+interface AdCopyPayload {
+  headline: string;
+  primaryText: string;
+  callToAction: string;
+  targetPlatform: "meta" | "google" | "tiktok" | "linkedin";
+  recommendedTargeting: {
+    lgaDemographics: string[]; // Targeting specific Nigerian Local Government Areas
+    interests: string[];
+    ageRange: string;
+  };
+}
+
+export class AdCopyGenerator {
+  public static generateAdCopy(
+    productSlug: string,
+    funnelStage: "awareness" | "conviction" | "education" | "enablement",
+  ): AdCopyPayload {
+    switch (funnelStage) {
+      case "awareness":
+        return {
+          headline: "Wetin Dey Occur For Tech Inside Naija? 📰",
+          primaryText:
+            "No let sapa catch your business this season! Stop paying for expensive foreign platforms. Get all the latest tech updates and business tools in clean, simple Pidgin English on AmeboGist NG.",
+          callToAction: "Read Gist Now",
+          targetPlatform: "meta",
+          recommendedTargeting: {
+            lgaDemographics: [
+              "Ikeja",
+              "Lagos Island",
+              "Abuja Municipal",
+              "Port Harcourt",
+            ],
+            interests: [], // fill in: tech news, entrepreneurship, Nigerian pop culture
+            ageRange: "18 - 34",
+          },
+        };
+      case "conviction":
+        return {
+          headline: "Build for Nigeria. Retain Your Heritage. 🌳",
+          primaryText:
+            'The "5 Rivers" doctrine outlines a blueprint for economic self-reliance. Stop chasing short-term business hacks. Explore tomorrow\'s software products while they are still stories on VillageCircle NG.',
+          callToAction: "Join the Circle",
+          targetPlatform: "linkedin",
+          recommendedTargeting: {
+            lgaDemographics: [], // fill in
+            interests: [], // fill in
+            ageRange: "24 - 45",
+          },
+        };
+      case "education":
+        return {
+          headline: "JAMB & WAEC Prep Made Simple! 🎓",
+          primaryText:
+            "Ace your school exams and learn highly valuable digital skills! Get instant access to over 10,000 verified past questions, automated CBT exam simulations, and personalized AI tutoring on Boldmind EduCenter.",
+          callToAction: "Start Free Practice",
+          targetPlatform: "meta",
+          recommendedTargeting: {
+            lgaDemographics: [], // fill in
+            interests: [], // fill in
+            ageRange: "15 - 24",
+          },
+        };
+      case "enablement":
+        return {
+          headline: "Run Your Nigerian Business on Autopilot ⚡",
+          primaryText:
+            "Tired of managing multiple software subscriptions? PlanAI unlocks 13 complete, AI-powered business tools—handling social media scheduling, VAT-compliant invoicing, accounting projections, and legal contracts in a single dashboard.",
+          callToAction: "Unleash Your Business OS",
+          targetPlatform: "linkedin",
+          recommendedTargeting: {
+            lgaDemographics: [], // fill in
+            interests: [], // fill in
+            ageRange: "22 - 50",
+          },
+        };
+    }
+  }
+}
+```
+
+> Fixed from the source doc: added the `[]` array types to `lgaDemographics`/`interests` in the interface (present as bare `string`/missing in the original) and closed several object literals that were missing commas/braces in the raw source. `interests`/`lgaDemographics` values beyond the `awareness` case are placeholders — populate from the content-pillar targeting notes in §27.2 and the deployment guidelines below before shipping.
+
+**Ad deployment guidelines by pillar:**
+
+| Pillar                         | Where to run                                                  | When                                                           | Copy focus                                               |
+| ------------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------- |
+| AmeboGist (Awareness)          | TikTok Ads, Meta in-feed video                                | Daily, 17:00–21:00 Africa/Lagos                                | Scroll-stopping Pidgin hooks ("Wetin Dey Occur", "Omo!") |
+| VillageCircle (Conviction)     | Twitter/X in-stream, LinkedIn sponsored                       | Sunday mornings, public holidays                               | Dignified prose, economic independence framing           |
+| Boldmind EduCenter (Education) | Meta link-preview/carousel                                    | JAMB registration (Jan–Mar), WAEC revision (Apr–Jun)           | Exam readiness, parent peace of mind                     |
+| PlanAI/Ads Center (Enablement) | LinkedIn single-image, Instagram feed, WhatsApp click-to-chat | Year-round, budget spikes Q3 (back-to-school) and Q4 (festive) | Cost savings, "13 tools in one subscription"             |
+
+### 27.9 Part 8 — Conclusions & Action Plan
+
+Three standing execution priorities, applicable both to BoldmindNG's own channels and to subscriber workspaces using the Social Media Manager:
+
+1. **Reinforce visual consistency** — every generated card/asset uses the exact dimensions/hex codes from §27.2; no ad-hoc spacing or typography.
+2. **Coordinate flywheel referrals** — every channel points to the next pillar (AmeboGist → VillageCircle → EduCenter → PlanAI), tracked via the UTM mechanism in §27.4's `SocialAccountMetrics`.
+3. **Automate publishing workflows** — scheduling runs through the §27.5 pipeline (Workspace UI → BullMQ → n8n → platform APIs), not manual posting, to keep management overhead flat as the number of brands/workspaces grows.
+
+---
+
+_BoldmindNG Master Design v3.0 (Unified) | July 2026 — updated to v3.1 with Redis/Queue hardening and Social Media Management & Branding Architecture (§27)_
 _Supersedes: Master Design v2.2.2 + System Design v2.1_
 _Env authority: §20, sourced from the dedicated env reconciliation pass — do not reintroduce the old env sections from either source doc_
-_Next review trigger: any change to products.ts, pricing.ts, colors.ts, schema.prisma, or a live-route diff against §6.3_
+_Redis/Queue authority: §25, sourced from the current production `redis.service.ts` and `queues.ts` — do not reintroduce the earlier illustrative versions of these files_
+_Social media authority: §27, sourced from `Strategic Social Media Management and Branding Architecture for BoldmindNG` — several code snippets there had incomplete array literals/empty placeholder arrays, fixed and flagged inline in §27.4–§27.8_
+_Next review trigger: any change to products.ts, pricing.ts, colors.ts, schema.prisma, queues.ts, redis.service.ts, or a live-route diff against §6.3_
