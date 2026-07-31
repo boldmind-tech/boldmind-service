@@ -67,7 +67,10 @@ export class NotificationService {
       "RESEND_FROM_EMAIL",
       "hello@boldmind.ng",
     );
-    this.defaultWaToken = this.config.get<string>("META_WHATSAPP_TOKEN", "");
+    this.defaultWaToken = this.config.get<string>(
+      "META_WHATSAPP_ACCESS_TOKEN",
+      "",
+    );
 
     webpush.setVapidDetails(
       `mailto:${this.fromEmail}`,

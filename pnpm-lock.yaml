@@ -21,20 +21,20 @@ importers:
         specifier: ^3.1007.0
         version: 3.1089.0
       '@boldmindng/analytics':
-        specifier: 14.0.0
-        version: 14.0.0(@boldmindng/utils@11.0.0(react@19.2.0))(react@19.2.0)
+        specifier: 15.0.0
+        version: 15.0.0(@boldmindng/utils@12.0.0(react@19.2.0))(react@19.2.0)
       '@boldmindng/deploy-config':
-        specifier: 1.1.1
-        version: 1.1.1(react@19.2.0)
+        specifier: 1.1.2
+        version: 1.1.2(react@19.2.0)
       '@boldmindng/email':
-        specifier: 8.0.0
-        version: 8.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: 9.0.0
+        version: 9.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@boldmindng/sms':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 2.0.0
+        version: 2.0.0
       '@boldmindng/utils':
-        specifier: 11.0.0
-        version: 11.0.0(react@19.2.0)
+        specifier: 12.0.0
+        version: 12.0.0(react@19.2.0)
       '@fal-ai/client':
         specifier: ^1.10.0
         version: 1.10.1
@@ -410,29 +410,29 @@ packages:
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
 
-  '@boldmindng/analytics@14.0.0':
-    resolution: {integrity: sha512-wyDVYT5Oe4qmBoLudEHeSSLebYHESijeuPAtDr8cO72YnFdEzq8t+uMQW+AdyaKsQZIfgFKiLUefsL991S6h2Q==, tarball: https://npm.pkg.github.com/download/@boldmindng/analytics/14.0.0/0f26f4e398d893600bf57e8e3cedb0c9576a6b39}
+  '@boldmindng/analytics@15.0.0':
+    resolution: {integrity: sha512-Kl4sNTqJhWlnrOr321Rv/Rd/oAPiCbGrR66+iOxT1J6/sVhqaxNRPBuX8oKa1WAygmPFv21hB3q5xvLFav9WFg==, tarball: https://npm.pkg.github.com/download/@boldmindng/analytics/15.0.0/d8662e099060adde2fcf6fe8db07e70f501df5b8}
     peerDependencies:
-      '@boldmindng/utils': 11.0.0
+      '@boldmindng/utils': 12.0.0
       react: 19.2.0
 
-  '@boldmindng/deploy-config@1.1.1':
-    resolution: {integrity: sha512-GMe5ITQe6GcpaP73u56BWMlpJEgLm1zRD4fmpvhQjFjblXG/MWYreN1wFSaF0ntBcCIRBErLBWAzr4MHrCvpFg==, tarball: https://npm.pkg.github.com/download/@boldmindng/deploy-config/1.1.1/1b9ebb75a3093bac31d593b752ec036f7df7098e}
+  '@boldmindng/deploy-config@1.1.2':
+    resolution: {integrity: sha512-yleaya/tLab10Brm4usjOs62DrBV9DyJEg9xUi614mJ/AzY5eq2SEh5iBnWSs/uOtRBxjIWy63UstIwSL7tV4g==, tarball: https://npm.pkg.github.com/download/@boldmindng/deploy-config/1.1.2/d53c653e01182cbf4ba2c2f2fbec370f13565696}
     engines: {node: '>=22.22.3'}
     hasBin: true
 
-  '@boldmindng/email@8.0.0':
-    resolution: {integrity: sha512-aHiGzWyYUgawVzClfm/08FJnPrdTfdBVGENHLhLaaHOl25/mPkJbIcrkjneI4YVXlVZhpuhmJWfbEc7tnT8AVQ==, tarball: https://npm.pkg.github.com/download/@boldmindng/email/8.0.0/93409421477f15ca101c4135d30a1ce23c6d68d3}
+  '@boldmindng/email@9.0.0':
+    resolution: {integrity: sha512-e8yhMYekXtw/fJ0YLU6zWE39mYIFah8iQRYr3niEOrKjur3p19J3r92wMopUVCRLmPA3VRweYXv+Ffipd1YWxA==, tarball: https://npm.pkg.github.com/download/@boldmindng/email/9.0.0/c56a66340651ae5b3521726d5a6c92b8b0e57dda}
     peerDependencies:
       react: 19.2.0
       react-dom: 19.2.0
 
-  '@boldmindng/sms@1.1.0':
-    resolution: {integrity: sha512-heqdC3wivGA39v7GVns599TDt+rm7UcPiACMDD2qFIXfChfrIsl7pz8TX/VxUwsF92PI5a0qMI5CvzRsnbDeJg==, tarball: https://npm.pkg.github.com/download/@boldmindng/sms/1.1.0/a2635aa3505094f3db4f3a611c56b720f3bcc553}
+  '@boldmindng/sms@2.0.0':
+    resolution: {integrity: sha512-jpi/Fr1pSE/GxiwKdTZsZLvKoZfcM+1jjKjnImKTX9IPKXAFHPD1ZP8pyBQeHTsamGMabAhdfj0eZxmcq0P+WA==, tarball: https://npm.pkg.github.com/download/@boldmindng/sms/2.0.0/08be91f98e814daff16026654fba473b84ba1f77}
     engines: {node: '>=22.22.3'}
 
-  '@boldmindng/utils@11.0.0':
-    resolution: {integrity: sha512-BJfmpeOTo9jcxiiR5i5wIFrlq+a7lQa7awx7uNUicWc7Xopu3zbvsnsI8D48R6iChk6mTiaBo8SDm53ZsOa8YA==, tarball: https://npm.pkg.github.com/download/@boldmindng/utils/11.0.0/a45eba3859707dd06c21824dff8a3541d4155067}
+  '@boldmindng/utils@12.0.0':
+    resolution: {integrity: sha512-JGRe4MNboguyPsmXvGELOLiNhgmc3sgiFumAc/nAQ8tWUbaMPKbxdZvTq5RWn0yEn3owvnoDzfQwosKTJ0NOiA==, tarball: https://npm.pkg.github.com/download/@boldmindng/utils/12.0.0/3b9b09d194d4aef8a950e1740c3b81decb14061a}
     engines: {node: '>=22.22.3'}
     peerDependencies:
       react: 19.2.0
@@ -4313,24 +4313,24 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@boldmindng/analytics@14.0.0(@boldmindng/utils@11.0.0(react@19.2.0))(react@19.2.0)':
+  '@boldmindng/analytics@15.0.0(@boldmindng/utils@12.0.0(react@19.2.0))(react@19.2.0)':
     dependencies:
-      '@boldmindng/utils': 11.0.0(react@19.2.0)
+      '@boldmindng/utils': 12.0.0(react@19.2.0)
       mixpanel-browser: 2.81.0
       posthog-js: 1.404.0
       react: 19.2.0
     transitivePeerDependencies:
       - preact-render-to-string
 
-  '@boldmindng/deploy-config@1.1.1(react@19.2.0)':
+  '@boldmindng/deploy-config@1.1.2(react@19.2.0)':
     dependencies:
-      '@boldmindng/utils': 11.0.0(react@19.2.0)
+      '@boldmindng/utils': 12.0.0(react@19.2.0)
       '@types/node': 22.20.1
       zod: 3.25.76
     transitivePeerDependencies:
       - react
 
-  '@boldmindng/email@8.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@boldmindng/email@9.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@react-email/render': 2.1.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
@@ -4342,9 +4342,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@boldmindng/sms@1.1.0': {}
+  '@boldmindng/sms@2.0.0': {}
 
-  '@boldmindng/utils@11.0.0(react@19.2.0)':
+  '@boldmindng/utils@12.0.0(react@19.2.0)':
     dependencies:
       '@types/node': 22.20.1
       date-fns: 3.6.0

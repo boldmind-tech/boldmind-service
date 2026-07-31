@@ -218,11 +218,6 @@
 //   }
 // }
 
-
-   
-
-
-
 // import { Injectable, Logger } from '@nestjs/common';
 // import { HttpService } from '@nestjs/axios';
 // import { InjectQueue } from '@nestjs/bullmq';
@@ -262,7 +257,7 @@
 //     private readonly config: ConfigService,
 //     @InjectQueue('social-posts') private readonly socialQueue: Queue,
 //   ) {
-//     this.waToken       = this.config.get<string>('META_WHATSAPP_TOKEN', '');
+//     this.waToken       = this.config.get<string>('META_WHATSAPP_ACCESS_TOKEN', '');
 //     this.igAccessToken = this.config.get<string>('META_IG_ACCESS_TOKEN', '');
 //   }
 
@@ -297,7 +292,7 @@
 //       bestPostTime: string;
 //       engagementTip: string;
 //     }>(
-//       `You are a Nigerian social media strategist who understands Lagos culture, Pidgin English, 
+//       `You are a Nigerian social media strategist who understands Lagos culture, Pidgin English,
 // and what goes viral in the Nigerian digital space. Always respond with valid JSON only.`,
 //       `Generate a ${platform} caption for a Nigerian business.
 // Topic: ${dto.topic}
@@ -307,7 +302,7 @@
 // Hashtag count: ${dto.hashtagCount ?? 10}
 // ${dto.includePidgin ? 'Also include a Pidgin English version in pidginCaption field.' : ''}
 
-// Return JSON: { caption, hook (first sentence only), hashtags: [string], callToAction, 
+// Return JSON: { caption, hook (first sentence only), hashtags: [string], callToAction,
 // ${dto.includePidgin ? 'pidginCaption,' : ''} bestPostTime (e.g. "7-9pm WAT"), engagementTip }`,
 //       { task: language !== 'english' ? 'nigerian-language' : 'creative', temperature: 0.8 },
 //     );
@@ -472,7 +467,7 @@
 //     }>(
 //       'You are a Nigerian social media trends analyst. Respond with valid JSON only.',
 //       `Generate 10 trending content topic ideas relevant to Nigerian audiences right now.
-// Consider: Nigerian business culture, current economic climate, tech/fintech space, 
+// Consider: Nigerian business culture, current economic climate, tech/fintech space,
 // creator economy, upcoming Nigerian holidays, Lagos/Abuja lifestyle, JAPA discourse.
 
 // Return JSON: {

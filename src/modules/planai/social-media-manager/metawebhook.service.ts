@@ -1,19 +1,19 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { firstValueFrom } from 'rxjs';
-import * as crypto from 'crypto';
-import { MessagePlatform } from '@prisma/client';
-import { PrismaService } from '../../../database/prisma.service';
-import { RedisService } from '../../../database/redis.service';
-import { QUEUES } from '../../../common/constants/queues';
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { HttpService } from "@nestjs/axios";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
+import { firstValueFrom } from "rxjs";
+import * as crypto from "crypto";
+import { MessagePlatform } from "@prisma/client";
+import { PrismaService } from "../../../database/prisma.service";
+import { RedisService } from "../../../database/redis.service";
+import { QUEUES } from "../../../common/constants/queues";
 
 // ─── Payload types ───────────────────────────────────────────────────────────
 
 export interface MetaWebhookPayload {
-  object: 'whatsapp_business_account' | 'instagram' | 'page';
+  object: "whatsapp_business_account" | "instagram" | "page";
   entry: MetaEntry[];
 }
 
@@ -45,7 +45,15 @@ export interface MetaMessage {
   from: string;
   id: string;
   timestamp: string;
-  type: 'text' | 'image' | 'audio' | 'document' | 'interactive' | 'button' | 'sticker' | 'location';
+  type:
+    | "text"
+    | "image"
+    | "audio"
+    | "document"
+    | "interactive"
+    | "button"
+    | "sticker"
+    | "location";
   text?: { body: string };
   image?: { id: string; mime_type: string; sha256?: string };
   audio?: { id: string; mime_type: string };
@@ -60,7 +68,7 @@ export interface MetaMessage {
 
 interface MetaStatus {
   id: string;
-  status: 'sent' | 'delivered' | 'read' | 'failed';
+  status: "sent" | "delivered" | "read" | "failed";
   timestamp: string;
   recipient_id: string;
   errors?: Array<{ code: number; title: string }>;
@@ -95,7 +103,7 @@ export class MetaWebhookService {
   private readonly logger = new Logger(MetaWebhookService.name);
 
   // Meta API version — bump here only; used everywhere below
-  private readonly apiVersion = 'v19.0';
+  private readonly apiVersion = "v19.0";
 
   // Credentials loaded once at construction
   private readonly verifyToken: string;
@@ -107,30 +115,37 @@ export class MetaWebhookService {
     private readonly http: HttpService,
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
-    @InjectQueue(QUEUES.WEBHOOK_DELIVERY) private readonly receptionistQueue: Queue,
+    @InjectQueue(QUEUES.WEBHOOK_DELIVERY)
+    private readonly receptionistQueue: Queue,
   ) {
-    this.verifyToken    = this.config.getOrThrow<string>('META_WEBHOOK_VERIFY_TOKEN');
-    this.appSecret      = this.config.getOrThrow<string>('META_APP_SECRET');
-    this.defaultWaToken = this.config.getOrThrow<string>('META_WHATSAPP_TOKEN');
+    this.verifyToken = this.config.getOrThrow<string>(
+      "META_WEBHOOK_VERIFY_TOKEN",
+    );
+    this.appSecret = this.config.getOrThrow<string>("META_APP_SECRET");
+    this.defaultWaToken = this.config.getOrThrow<string>(
+      "META_WHATSAPP_ACCESS_TOKEN",
+    );
   }
 
   // ── Webhook verification (GET) ──────────────────────────────────────────────
 
   verifyWebhook(mode: string, token: string, challenge: string): string {
-    if (mode === 'subscribe' && token === this.verifyToken) {
-      this.logger.log('✅ Meta webhook verified');
+    if (mode === "subscribe" && token === this.verifyToken) {
+      this.logger.log("✅ Meta webhook verified");
       return challenge;
     }
-    throw new UnauthorizedException('Meta webhook verification failed — token mismatch');
+    throw new UnauthorizedException(
+      "Meta webhook verification failed — token mismatch",
+    );
   }
 
   // ── Signature validation ────────────────────────────────────────────────────
 
   validateSignature(rawBody: Buffer, signature: string): boolean {
     const expected = `sha256=${crypto
-      .createHmac('sha256', this.appSecret)
+      .createHmac("sha256", this.appSecret)
       .update(rawBody)
-      .digest('hex')}`;
+      .digest("hex")}`;
 
     // Both buffers must be the same length before timingSafeEqual
     const a = Buffer.from(expected);
@@ -145,15 +160,15 @@ export class MetaWebhookService {
     payload: MetaWebhookPayload,
     rawBody: Buffer,
     signature: string,
-  ): Promise<{ status: 'ok' }> {
+  ): Promise<{ status: "ok" }> {
     if (!this.validateSignature(rawBody, signature)) {
-      throw new UnauthorizedException('Invalid Meta webhook signature');
+      throw new UnauthorizedException("Invalid Meta webhook signature");
     }
 
     for (const entry of payload.entry) {
       // WhatsApp Business — field=messages
       for (const change of entry.changes ?? []) {
-        if (change.field === 'messages') {
+        if (change.field === "messages") {
           await this.handleWhatsAppMessages(change.value);
         }
       }
@@ -168,7 +183,7 @@ export class MetaWebhookService {
       }
     }
 
-    return { status: 'ok' };
+    return { status: "ok" };
   }
 
   // ── WhatsApp inbound ────────────────────────────────────────────────────────
@@ -181,8 +196,8 @@ export class MetaWebhookService {
     }
 
     for (const msg of value.messages) {
-      const contact   = value.contacts?.find(c => c.wa_id === msg.from);
-      const senderName = contact?.profile?.name ?? 'Unknown';
+      const contact = value.contacts?.find((c) => c.wa_id === msg.from);
+      const senderName = contact?.profile?.name ?? "Unknown";
 
       // Deduplicate — Meta occasionally sends the same message twice
       const dedupKey = `meta:msg:${msg.id}`;
@@ -191,28 +206,30 @@ export class MetaWebhookService {
         this.logger.debug(`Duplicate WA message skipped: ${msg.id}`);
         continue;
       }
-      await this.redis.set(dedupKey, '1', 3600);
+      await this.redis.set(dedupKey, "1", 3600);
 
-      this.logger.log(`📱 WA inbound from=${msg.from} (${senderName}) type=${msg.type}`);
+      this.logger.log(
+        `📱 WA inbound from=${msg.from} (${senderName}) type=${msg.type}`,
+      );
 
       // Push to receptionist queue — return 200 immediately, process async
       await this.receptionistQueue.add(
-        'process-inbound',
+        "process-inbound",
         {
           phoneNumberId: value.metadata.phone_number_id,
-          from:          msg.from,
+          from: msg.from,
           senderName,
-          message:       msg,
-          platform:      'WHATSAPP' as MessagePlatform,
+          message: msg,
+          platform: "WHATSAPP" as MessagePlatform,
         } satisfies InboundMessageJob,
-        { attempts: 3, backoff: { type: 'exponential', delay: 2_000 } },
+        { attempts: 3, backoff: { type: "exponential", delay: 2_000 } },
       );
 
       await this.upsertConversation(
         msg.from,
         senderName,
         msg,
-        'WHATSAPP',
+        "WHATSAPP",
         value.metadata.phone_number_id,
       );
     }
@@ -227,36 +244,36 @@ export class MetaWebhookService {
   private async handleMessengerEvent(
     pageId: string,
     event: MetaMessengerEvent,
-    object: MetaWebhookPayload['object'],
+    object: MetaWebhookPayload["object"],
   ): Promise<void> {
     if (!event.message?.text) return;
 
     const platform: MessagePlatform =
-      object === 'instagram' ? 'INSTAGRAM_DM' : 'FACEBOOK_MESSAGE';
+      object === "instagram" ? "INSTAGRAM_DM" : "FACEBOOK_MESSAGE";
 
     const dedupKey = `meta:msg:${event.message.mid}`;
     const seen = await this.redis.get(dedupKey);
     if (seen) return;
-    await this.redis.set(dedupKey, '1', 3600);
+    await this.redis.set(dedupKey, "1", 3600);
 
     this.logger.log(`💬 ${platform} inbound senderId=${event.sender.id}`);
 
     await this.receptionistQueue.add(
-      'process-inbound',
+      "process-inbound",
       {
         phoneNumberId: pageId,
-        from:          event.sender.id,
-        senderName:    event.sender.id,
+        from: event.sender.id,
+        senderName: event.sender.id,
         message: {
-          from:      event.sender.id,
-          id:        event.message.mid,
+          from: event.sender.id,
+          id: event.message.mid,
           timestamp: String(event.timestamp),
-          type:      'text',
-          text:      { body: event.message.text },
+          type: "text",
+          text: { body: event.message.text },
         },
         platform,
       } satisfies InboundMessageJob,
-      { attempts: 3, backoff: { type: 'exponential', delay: 2_000 } },
+      { attempts: 3, backoff: { type: "exponential", delay: 2_000 } },
     );
   }
 
@@ -269,11 +286,11 @@ export class MetaWebhookService {
     accessToken = this.defaultWaToken,
   ): Promise<unknown> {
     return this.waPost(phoneNumberId, accessToken, {
-      messaging_product: 'whatsapp',
-      recipient_type:    'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to,
-      type:              'text',
-      text:              { preview_url: false, body: text },
+      type: "text",
+      text: { preview_url: false, body: text },
     });
   }
 
@@ -286,10 +303,14 @@ export class MetaWebhookService {
     accessToken = this.defaultWaToken,
   ): Promise<unknown> {
     return this.waPost(phoneNumberId, accessToken, {
-      messaging_product: 'whatsapp',
+      messaging_product: "whatsapp",
       to,
-      type:              'template',
-      template:          { name: templateName, language: { code: langCode }, components },
+      type: "template",
+      template: {
+        name: templateName,
+        language: { code: langCode },
+        components,
+      },
     });
   }
 
@@ -301,14 +322,17 @@ export class MetaWebhookService {
     accessToken = this.defaultWaToken,
   ): Promise<unknown> {
     return this.waPost(phoneNumberId, accessToken, {
-      messaging_product: 'whatsapp',
+      messaging_product: "whatsapp",
       to,
-      type:              'interactive',
+      type: "interactive",
       interactive: {
-        type: 'button',
+        type: "button",
         body: { text: bodyText },
         action: {
-          buttons: buttons.map(b => ({ type: 'reply', reply: { id: b.id, title: b.title } })),
+          buttons: buttons.map((b) => ({
+            type: "reply",
+            reply: { id: b.id, title: b.title },
+          })),
         },
       },
     });
@@ -320,17 +344,20 @@ export class MetaWebhookService {
     headerText: string,
     bodyText: string,
     buttonLabel: string,
-    sections: Array<{ title: string; rows: Array<{ id: string; title: string; description?: string }> }>,
+    sections: Array<{
+      title: string;
+      rows: Array<{ id: string; title: string; description?: string }>;
+    }>,
     accessToken = this.defaultWaToken,
   ): Promise<unknown> {
     return this.waPost(phoneNumberId, accessToken, {
-      messaging_product: 'whatsapp',
+      messaging_product: "whatsapp",
       to,
-      type:              'interactive',
+      type: "interactive",
       interactive: {
-        type:   'list',
-        header: { type: 'text', text: headerText },
-        body:   { text: bodyText },
+        type: "list",
+        header: { type: "text", text: headerText },
+        body: { text: bodyText },
         action: { button: buttonLabel, sections },
       },
     });
@@ -351,9 +378,9 @@ export class MetaWebhookService {
     text: string,
     accessToken: string,
   ): Promise<unknown> {
-    return this.graphPost('/me/messages', accessToken, {
+    return this.graphPost("/me/messages", accessToken, {
       recipient: { id: recipientId },
-      message:   { text },
+      message: { text },
     });
   }
 
@@ -406,7 +433,10 @@ export class MetaWebhookService {
       return data;
     } catch (err: unknown) {
       const detail = (err as any)?.response?.data;
-      this.logger.error(`Meta WA send failed (${phoneNumberId} → ${(body as any).to}):`, detail);
+      this.logger.error(
+        `Meta WA send failed (${phoneNumberId} → ${(body as any).to}):`,
+        detail,
+      );
       throw err;
     }
   }
@@ -463,17 +493,17 @@ export class MetaWebhookService {
     }
 
     const messageEntry = {
-      id:        msg.id,
-      type:      msg.type,
-      body:      msg.text?.body ?? `[${msg.type}]`,
+      id: msg.id,
+      type: msg.type,
+      body: msg.text?.body ?? `[${msg.type}]`,
       timestamp: new Date(Number(msg.timestamp) * 1000).toISOString(),
-      direction: 'inbound',
+      direction: "inbound",
     };
 
     // Try to append to an existing ACTIVE conversation for this sender
     const existing = await this.prisma.conversationLog.findFirst({
-      where:   { clientId: client.id, senderPhone: from, status: 'ACTIVE' },
-      orderBy: { createdAt: 'desc' },
+      where: { clientId: client.id, senderPhone: from, status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
     });
 
     if (existing) {
@@ -484,21 +514,21 @@ export class MetaWebhookService {
         where: { id: existing.id },
         data: {
           senderName,
-          messages:  [...messages, messageEntry],
+          messages: [...messages, messageEntry],
           updatedAt: new Date(),
         },
       });
     } else {
       await this.prisma.conversationLog.create({
         data: {
-          clientId:    client.id,
+          clientId: client.id,
           platform,
-          externalId:  msg.id,
+          externalId: msg.id,
           senderName,
-          senderPhone: platform === 'WHATSAPP' ? from : undefined,
-          senderIgId:  platform === 'INSTAGRAM_DM' ? from : undefined,
-          messages:    [messageEntry],
-          status:      'ACTIVE',
+          senderPhone: platform === "WHATSAPP" ? from : undefined,
+          senderIgId: platform === "INSTAGRAM_DM" ? from : undefined,
+          messages: [messageEntry],
+          status: "ACTIVE",
         },
       });
     }
@@ -523,13 +553,13 @@ export class MetaWebhookService {
           ? (conv.messages as Array<Record<string, unknown>>)
           : [];
 
-        const updated = messages.map(m =>
-          m['id'] === s.id ? { ...m, deliveryStatus: s.status } : m,
+        const updated = messages.map((m) =>
+          m["id"] === s.id ? { ...m, deliveryStatus: s.status } : m,
         );
 
         await this.prisma.conversationLog.update({
           where: { id: conv.id },
-          data:  { messages: updated, updatedAt: new Date() },
+          data: { messages: updated, updatedAt: new Date() },
         });
       } catch {
         // delivery status update is non-critical — never throw

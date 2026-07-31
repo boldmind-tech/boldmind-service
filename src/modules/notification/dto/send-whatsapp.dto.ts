@@ -25,7 +25,7 @@ export class SendWhatsappDto {
 
   @ApiPropertyOptional({
     description:
-      "Override Meta access token (defaults to META_WHATSAPP_TOKEN env var)",
+      "Override Meta access token (defaults to META_WHATSAPP_ACCESS_TOKEN env var)",
   })
   @IsOptional()
   @IsString()
